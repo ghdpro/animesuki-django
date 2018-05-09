@@ -81,26 +81,26 @@ class Media(HistoryModel):
             (FALL, 'Fall')
         )
 
-    title = models.CharField('Title', max_length=250, blank=True)
-    slug = models.SlugField('Slug', max_length=250, unique=True, allow_unicode=True)
-    media_type = models.PositiveSmallIntegerField('Type', choices=Type.choices, default=Type.ANIME)
-    sub_type = models.PositiveSmallIntegerField('Sub Type', choices=SubType.choices, default=SubType.UNKNOWN)
-    status = models.PositiveSmallIntegerField('Status', choices=Status.choices, default=Status.AUTO)
-    is_adult = models.BooleanField('Adult?', default=False)
-    episodes = models.IntegerField('Episodes', null=True, blank=True)
-    duration = models.IntegerField('Duration', null=True, blank=True)
-    volumes = models.IntegerField('Volumes', null=True, blank=True)
-    chapters = models.IntegerField('Chapters', null=True, blank=True)
-    start_date = models.DateField('Start Date', null=True, blank=True)
-    start_precision = models.PositiveSmallIntegerField('Precision', choices=DatePrecision.choices,
+    title = models.CharField('title', max_length=250, blank=True)
+    slug = models.SlugField('slug', max_length=250, unique=True, allow_unicode=True)
+    media_type = models.PositiveSmallIntegerField('type', choices=Type.choices, default=Type.ANIME)
+    sub_type = models.PositiveSmallIntegerField('sub Type', choices=SubType.choices, default=SubType.UNKNOWN)
+    status = models.PositiveSmallIntegerField('status', choices=Status.choices, default=Status.AUTO)
+    is_adult = models.BooleanField('adult', default=False)
+    episodes = models.IntegerField('episodes', null=True, blank=True)
+    duration = models.IntegerField('duration', null=True, blank=True)
+    volumes = models.IntegerField('volumes', null=True, blank=True)
+    chapters = models.IntegerField('chapters', null=True, blank=True)
+    start_date = models.DateField('start date', null=True, blank=True)
+    start_precision = models.PositiveSmallIntegerField('precision', choices=DatePrecision.choices,
                                                        default=DatePrecision.FULL)
-    end_date = models.DateField('End Date', null=True, blank=True)
-    end_precision = models.PositiveSmallIntegerField('Precision', choices=DatePrecision.choices,
+    end_date = models.DateField('end date', null=True, blank=True)
+    end_precision = models.PositiveSmallIntegerField('precision', choices=DatePrecision.choices,
                                                      default=DatePrecision.FULL)
-    season_year = models.IntegerField('Season Year', null=True, blank=True)
-    season = models.PositiveSmallIntegerField('Season', choices=Season.choices, null=True, blank=True)
-    description = models.TextField('Description', blank=True)
-    synopsis = models.TextField('Synopsis', blank=True)
+    season_year = models.IntegerField('season year', null=True, blank=True)
+    season = models.PositiveSmallIntegerField('season', choices=Season.choices, null=True, blank=True)
+    description = models.TextField('description', blank=True)
+    synopsis = models.TextField('synopsis', blank=True)
 
     def __str__(self):
         return self.title

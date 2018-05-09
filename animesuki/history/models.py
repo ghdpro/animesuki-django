@@ -14,14 +14,9 @@ from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.postgres.fields import JSONField
 
+from animesuki.core.utils import get_ip_from_request
 
 logger = logging.getLogger(__name__)
-
-
-def get_ip_from_request(request):
-    """"Extracts IP address from Request object"""
-    # This is a separate function just in case the logic needs to be expanded to account for proxies etc
-    return request.META.get('REMOTE_ADDR')
 
 
 def object_to_dict(obj):
@@ -29,10 +24,10 @@ def object_to_dict(obj):
     raw = model_to_dict(obj)
     data = OrderedDict()
     for field in obj._meta.get_fields():
-        if field.name in raw and not isinstance(field, ManyToManyField) and not isinstance(field, FileField):
+        # Excluded: primary key; Not supported: ManyToManyField and FileField
+        if field.name in raw and field.name != obj._meta.pk.name \
+                and not isinstance(field, ManyToManyField) and not isinstance(field, FileField):
             data[field.name] = raw[field.name]
-    # Do not include primary key
-    del data[obj._meta.pk.name]
     return data
 
 
@@ -46,6 +41,7 @@ def object_data_revert(obj):
 
 def changed_keys(a, b):
     """Compares two dictionaries and returns list of keys where values are different"""
+    # Note! This function disregards keys that don't appear in both dictionaries
     keys = []
     if a is not None and b is not None:
         for k, _ in b.items():
@@ -131,7 +127,7 @@ class ChangeRequest(models.Model):
 
     def set_user(self, request):
         self.user = request.user
-        self.user_date = timezone.now()
+        # user_date is set automatically (field has auto_now_add flag)
         self.user_ip = get_ip_from_request(request)
 
     def set_mod(self, request):

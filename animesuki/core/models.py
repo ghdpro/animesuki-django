@@ -45,6 +45,11 @@ class AnimeSukiUser(AbstractBaseUser, PermissionsMixin):
             'Unselect this instead of deleting accounts.'
         ),
     )
+    is_banned = models.BooleanField(
+        _('banned'),
+        default=False,
+        help_text=_('Designates whether the user is allowed to make modifications to the AnimeSuki database.'),
+    )
     date_joined = models.DateTimeField(_('date joined'), default=timezone.now)
 
     objects = UserManager()
@@ -86,9 +91,9 @@ class AnimeSukiUser(AbstractBaseUser, PermissionsMixin):
 
 class Language(models.Model):
     # Fixture: fixtures/language.json
-    code = models.CharField('Code', primary_key=True, max_length=2)
-    name = models.CharField('Name', max_length=50)
-    country_code = models.CharField('Country Code', max_length=2)
+    code = models.CharField('code', primary_key=True, max_length=2)
+    name = models.CharField('name', max_length=50)
+    country_code = models.CharField('country code', max_length=2)
 
     def __str__(self):
         return self.name

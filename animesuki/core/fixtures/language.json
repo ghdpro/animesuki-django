@@ -1,0 +1,34 @@
+[
+  {
+    "model": "core.language",
+    "pk": "ja",
+    "fields": {
+      "name": "Japanese",
+      "country_code": "JP"
+    }
+  },
+  {
+    "model": "core.language",
+    "pk": "en",
+    "fields": {
+      "name": "English",
+      "country_code": "GB"
+    }
+  },
+  {
+    "model": "core.language",
+    "pk": "zh",
+    "fields": {
+      "name": "Chinese",
+      "country_code": "CN"
+    }
+  },
+  {
+    "model": "core.language",
+    "pk": "ko",
+    "fields": {
+      "name": "Korean",
+      "country_code": "KR"
+    }
+  }
+]
