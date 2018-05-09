@@ -1,12 +1,17 @@
 """AnimeSuki Core models"""
 
+import logging
+
 from django.db import models
+from django.conf import settings
 from django.core.mail import send_mail
 from django.utils import timezone
 from django.utils.text import slugify
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin, UserManager
 from django.contrib.auth.validators import UnicodeUsernameValidator
+
+logger = logging.getLogger(__name__)
 
 
 class AnimeSukiUser(AbstractBaseUser, PermissionsMixin):
@@ -87,6 +92,38 @@ class AnimeSukiUser(AbstractBaseUser, PermissionsMixin):
     def email_user(self, subject, message, from_email=None, **kwargs):
         """Send an email to this user."""
         send_mail(subject, message, from_email, [self.email], **kwargs)
+
+
+class OptionsManager(models.Manager):
+
+    def get_bool(self, code):
+        v = str(self.get(code=code).value).strip().lower()
+        if len(v) > 0 and v[0] in ('1', 't', 'y'):
+            return True
+        return False
+
+    def get_int(self, code):
+        try:
+            return int(self.get(code=code).value)
+        except ValueError:
+            logger.warning('Options: failed to cast value of "{}" to int'.format(code))
+        return 0
+
+
+class Option(models.Model):
+    # Fixture: fixtures/option.json
+    EMERGENCY_SHUTDOWN = 'emergency-shutdown'
+    HISTORY_THROTTLE_MAX = 'history-throttle-max'
+    HISTORY_THROTTLE_MIN = 'history-throttle-min'
+
+    code = models.CharField('code', primary_key=True, max_length=50)
+    name = models.CharField('name', max_length=100)
+    value = models.CharField('value', max_length=250, null=True, blank=True)
+    last_modified_by = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='%(class)s_user',
+                                         null=True, blank=True, on_delete=models.PROTECT)
+    date_created = models.DateTimeField(auto_now_add=True, blank=True)
+    date_modified = models.DateTimeField(auto_now=True, blank=True)
+    objects = OptionsManager()
 
 
 class Language(models.Model):

@@ -4,7 +4,7 @@ from django.utils.translation import ugettext_lazy as _
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 
-from .models import AnimeSukiUser
+from .models import AnimeSukiUser, Option
 
 
 @admin.register(AnimeSukiUser)
@@ -22,3 +22,17 @@ class AnimeSukiUserAdmin(UserAdmin):
     list_display = ('username', 'email', 'is_staff', 'is_banned')
     list_filter = ('is_staff', 'is_superuser', 'is_active', 'is_banned', 'groups')
     search_fields = ('username', 'email')
+
+
+@admin.register(Option)
+class OptionAdmin(admin.ModelAdmin):
+    fields = (
+        ('code',),
+        ('name',),
+        ('value',),
+        ('last_modified_by',),
+        ('date_created',),
+        ('date_modified',),
+    )
+    readonly_fields = ('last_modified_by', 'date_created', 'date_modified')
+    list_display = ('code', 'name', 'value', 'last_modified_by')

@@ -1,0 +1,32 @@
+[
+  {
+    "model": "core.option",
+    "pk": "emergency-shutdown",
+    "fields": {
+      "name": "Emergency Shutdown",
+      "value": "false",
+      "date_created": "2018-05-01T00:00:00.000Z",
+      "date_modified": "2018-05-01T00:00:00.000Z"
+    }
+  },
+  {
+    "model": "core.option",
+    "pk": "history-throttle-max",
+    "fields": {
+      "name": "Maximum number of edits regular users can make in 24H",
+      "value": "50",
+      "date_created": "2018-05-01T00:00:00.000Z",
+      "date_modified": "2018-05-01T00:00:00.000Z"
+    }
+  },
+  {
+    "model": "core.option",
+    "pk": "history-throttle-min",
+    "fields": {
+      "name": "Maximum number of edits contributors can make in 24H",
+      "value": "500",
+      "date_created": "2018-05-01T00:00:00.000Z",
+      "date_modified": "2018-05-01T00:00:00.000Z"
+    }
+  }
+]
