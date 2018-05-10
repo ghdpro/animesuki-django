@@ -102,6 +102,8 @@ class Media(HistoryModel):
     description = models.TextField('description', blank=True)
     synopsis = models.TextField('synopsis', blank=True)
 
+    HISTORY_MODERATE_FIELDS = ('title', 'slug', 'media_type', 'sub_type', 'is_adult')
+
     def __str__(self):
         return self.title
 

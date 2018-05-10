@@ -31,8 +31,11 @@ class OptionAdmin(admin.ModelAdmin):
         ('name',),
         ('value',),
         ('last_modified_by',),
-        ('date_created',),
         ('date_modified',),
     )
-    readonly_fields = ('last_modified_by', 'date_created', 'date_modified')
-    list_display = ('code', 'name', 'value', 'last_modified_by')
+    readonly_fields = ('last_modified_by', 'date_modified')
+    list_display = ('code', 'name', 'value', 'last_modified_by', 'date_modified')
+
+    def save_model(self, request, obj, form, change):
+        obj.last_modified_by = request.user
+        super().save_model(request, obj, form, change)

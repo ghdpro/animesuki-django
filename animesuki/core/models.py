@@ -121,7 +121,6 @@ class Option(models.Model):
     value = models.CharField('value', max_length=250, null=True, blank=True)
     last_modified_by = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='%(class)s_user',
                                          null=True, blank=True, on_delete=models.PROTECT)
-    date_created = models.DateTimeField(auto_now_add=True, blank=True)
     date_modified = models.DateTimeField(auto_now=True, blank=True)
     objects = OptionsManager()
 
