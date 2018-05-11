@@ -1,0 +1,12 @@
+[run]
+include = ./*
+omit = *migrations*, *tests*
+
+[report]
+exclude_lines =
+    pragma: no cover
+    if settings.DEBUG
+    raise ImproperlyConfigured
+    ImportError
+skip_covered = True
+show_missing = True

@@ -1,8 +1,12 @@
 # Python
 *.pyc
 
+# Coverage
+htmlcov/
+.coverage
+
 # Vagrant
 .vagrant/
 
 # AnimeSuki
-/settings/secrets.json
+settings/secrets.json

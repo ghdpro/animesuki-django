@@ -211,14 +211,18 @@ class HistoryModel(models.Model):
     def user_throttled(self):
         """Returns True if user has exceeded maximum number of allowed edits."""
         if not self.request.user.has_perm('history.throttle_off'):
-            since = timezone.now() - timezone.timedelta(days=1)
-            count = ChangeRequest.objects.filter(user=self.request.user, date_created__gte=since).count()
+            day = timezone.now() - timezone.timedelta(days=1)
+            count = ChangeRequest.objects.filter(user=self.request.user, date_created__gte=day).count()
             # Contributor
             if self.request.user.has_perm('history.throttle_min'):
                 if count >= Option.objects.get_int(Option.HISTORY_THROTTLE_MIN):
+                    logger.info('ChangeRequest: user "{}" ({}) hit throttle limit ({})'
+                                .format(self.request.user.username, self.request.user.pk, count))
                     return True
             # User
             elif count >= Option.objects.get_int(Option.HISTORY_THROTTLE_MAX):
+                logger.info('ChangeRequest: user "{}" ({}) hit throttle limit ({})'
+                            .format(self.request.user.username, self.request.user.pk, count))
                 return True
         return False
 
@@ -227,6 +231,8 @@ class HistoryModel(models.Model):
         """Checks conditions that will disallow any changes from being processed at all."""
         # If first run outside clean() this function may cause a fatal error (raises exceptions in wrong places)
         if not self.request.user.is_authenticated:
+            # Reaching this point should be impossible: changerequest.set_user() assumes user is AnimeSukiUser instance
+            # Therefore an unauthenticated (anonymous) user will get a fatal error before this code is run
             raise ValidationError('You need to be logged in to perform this action.', code='user-not-authenticated')
         if not self.request.user.is_active:
             raise ValidationError('Your user account is not active.', code='user-not-active')
@@ -255,12 +261,20 @@ class HistoryModel(models.Model):
     @cached_property
     def self_approve(self):
         """Checks conditions that would allow a change (add, modify or delete) to be approved immediately."""
+        week = timezone.now() - timezone.timedelta(days=7)
         if self._cr.request_type == ChangeRequest.Type.DELETE and self.request.user.has_perm('history.self_delete'):
+            # Always approve if action is DELETE and user has self_delete permission
             return True
         elif self._cr.request_type != ChangeRequest.Type.DELETE and self.request.user.has_perm('history.self_approve'):
+            # Always approve if action is ADD/MODIFY/RELATED and user has self_approve permission
             return True
+        elif self.request.user.date_joined >= week:
+            # Never approve if user account is less than one week old
+            return False
         elif self._cr.request_type in self.HISTORY_APPROVE_ACTIONS:
+            # Approve if action is in HISTORY_APPROVE_ACTIONS...
             if self._cr.data_changed is not None:
+                # ...unless a field was changed that is in HISTORY_MODERATE_FIELDS
                 if any(field in self._cr.data_changed.keys() for field in self.HISTORY_MODERATE_FIELDS):
                     return False
             return True

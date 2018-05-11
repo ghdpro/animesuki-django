@@ -124,6 +124,9 @@ class Option(models.Model):
     date_modified = models.DateTimeField(auto_now=True, blank=True)
     objects = OptionsManager()
 
+    def __str__(self):
+        return self.code
+
 
 class Language(models.Model):
     # Fixture: fixtures/language.json
