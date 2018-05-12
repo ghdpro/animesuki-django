@@ -216,12 +216,12 @@ class HistoryModel(models.Model):
             # Contributor
             if self.request.user.has_perm('history.throttle_min'):
                 if count >= Option.objects.get_int(Option.HISTORY_THROTTLE_MIN):
-                    logger.info('ChangeRequest: user "{}" ({}) hit throttle limit ({})'
+                    logger.info('ChangeRequest: user "{}" ({}) hit throttle limit ({}) [min]'
                                 .format(self.request.user.username, self.request.user.pk, count))
                     return True
             # User
             elif count >= Option.objects.get_int(Option.HISTORY_THROTTLE_MAX):
-                logger.info('ChangeRequest: user "{}" ({}) hit throttle limit ({})'
+                logger.info('ChangeRequest: user "{}" ({}) hit throttle limit ({}) [max]'
                             .format(self.request.user.username, self.request.user.pk, count))
                 return True
         return False
@@ -326,6 +326,8 @@ class HistoryModel(models.Model):
             self._cr.set_object(self)
             self._cr.save()
         self.log()
+        # Reset cached property
+        del self.has_pending
 
     def delete(self, *args, **kwargs):
         self._cr = self.create_changerequest(request_type=ChangeRequest.Type.DELETE)
@@ -337,6 +339,8 @@ class HistoryModel(models.Model):
         else:
             self._cr.save()
         self.log()
+        # Reset cached property
+        del self.has_pending
 
     class Meta:
         abstract = True

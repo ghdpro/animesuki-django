@@ -1,6 +1,8 @@
 """AnimeSuki Core models"""
 
 import logging
+from hashlib import md5
+from urllib.parse import urlencode
 
 from django.db import models
 from django.conf import settings
@@ -92,6 +94,11 @@ class AnimeSukiUser(AbstractBaseUser, PermissionsMixin):
     def email_user(self, subject, message, from_email=None, **kwargs):
         """Send an email to this user."""
         send_mail(subject, message, from_email, [self.email], **kwargs)
+
+    def get_gravatar_url(self, size=80, default='identicon'):
+        url = 'https://www.gravatar.com/avatar/' + md5(self.email.lower().encode('utf-8')).hexdigest()
+        url += '?' + urlencode({'d': default, 's': str(size)})
+        return url
 
 
 class OptionsManager(models.Manager):

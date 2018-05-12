@@ -72,6 +72,8 @@ AUTHENTICATION_BACKENDS = (
     'django.contrib.auth.backends.ModelBackend',
     'allauth.account.auth_backends.AuthenticationBackend',
 )
+LOGIN_URL = '/account/login'
+LOGIN_REDIRECT_URL = '/account/profile'
 ACCOUNT_AUTHENTICATION_METHOD = 'username_email'
 ACCOUNT_USERNAME_MIN_LENGTH = 3
 
