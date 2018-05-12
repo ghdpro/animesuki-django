@@ -7,6 +7,13 @@ from django.contrib import admin
 
 from allauth.account import views as account
 
+from animesuki.media.views import (MediaCreateView)
+
+
+media_patterns = ([
+    path('create', MediaCreateView.as_view(), name='create'),
+], 'media')
+
 account_patterns = [
     path('signup', account.signup, name='account_signup'),
     path('login', account.login, name='account_login'),
@@ -27,6 +34,7 @@ account_patterns = [
 ]
 
 urlpatterns = [
+    re_path(r'^(?P<mediatype>media|anime|manga|novel)/', include(media_patterns)),
     path('admin/', admin.site.urls),
     path('account/', include(account_patterns)),
     path('', TemplateView.as_view(template_name='frontpage.html'), name='frontpage')

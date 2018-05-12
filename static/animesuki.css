@@ -24,23 +24,14 @@ h1, h2, h3, h4, h5 {
     font-weight: 600;
 }
 
-main.container, footer.container {
-    border-left: #DDD8D0 solid 0.2rem;
-    border-right: #DDD8D0 solid 0.2rem;
-}
 main.container {
     background-color: #FDF8F0;
-    border-top: #DDD8D0 solid 0.2rem;
+    border: #DDD8D0 solid 0.2rem;
     padding: 0.5rem 1rem;
     margin-top: 1rem;
 }
-footer.container {
-    background-color: #DDD8D0;
-    font-size: 0.8rem;
-    color: #868178;
-    margin-bottom: 2rem;
-    /* Border fix for Edge */
-    margin-top: -1px;
+footer.container, footer.container a:link, footer.container a:active, footer.container a:visited {
+    color: #608090;
 }
 
 @media (max-width: 767.98px) {
@@ -55,12 +46,9 @@ footer.container {
         max-width: 100%;
     }
 
-    main.container, footer.container {
+    main.container {
         border: 0;
         border-radius: 0 !important;
-    }
-
-    main.container {
         margin-top: 0;
     }
 }

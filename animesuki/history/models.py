@@ -120,11 +120,11 @@ class ChangeRequest(models.Model):
         if obj.pk:
             # Existing object
             self.object = obj
-            self.object_str = str(obj)
         else:
             # New object
             self.object_type = ContentType.objects.get_for_model(obj)
             self.object_id = None
+        self.object_str = str(obj)
 
     def set_request_type(self, request_type=None):
         if request_type is not None:
@@ -341,6 +341,22 @@ class HistoryModel(models.Model):
         self.log()
         # Reset cached property
         del self.has_pending
+
+    def get_message(self):
+        if self._cr is None or not self._cr.pk:
+            return None
+        else:
+            verb = {ChangeRequest.Type.ADD: 'Create',
+                    ChangeRequest.Type.MODIFY: 'Update',
+                    ChangeRequest.Type.DELETE: 'Delete',
+                    ChangeRequest.Type.RELATED: 'Related objects update'}.get(self._cr.request_type)
+            if self._cr.status == ChangeRequest.Status.PENDING:
+                return '{} request for {} "{}" is pending moderator approval'.format(verb, self._cr.object_type,
+                                                                                     self._cr.object_str)
+            elif self._cr.object is None and self._cr.request_type == ChangeRequest.Type.DELETE:
+                return '{}d {} "{}"'.format(verb, self._cr.object_type, self._cr.object_str)
+            else:
+                return '{}d {} "{}"'.format(verb, self._cr.object_type, self._cr.object_str)
 
     class Meta:
         abstract = True

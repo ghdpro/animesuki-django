@@ -22,7 +22,7 @@
 
 {% include '_nav.html' %}
 
-<main class="container rounded-top">
+<main class="container rounded">
     {% for message in messages %}
         <div class="alert alert-{{ message.tags }}" role="alert">{{ message }}</div>
     {% endfor %}
@@ -32,7 +32,11 @@
 </main>
 
 <footer class="container rounded-bottom text-center">
-    Copyright &copy; 2002-{% now "Y" %} AnimeSuki.com
+    <small>Copyright &copy; 2002-{% now "Y" %} AnimeSuki.com</small>
+    <h4>
+        <a href="https://github.com/ghdpro/animesuki"><i class="fa fa-github fa-fw"></i></a>
+        <a href="https://twitter.com/AnimeSuki"><i class="fa fa-twitter fa-fw"></i></a>
+    </h4>
 </footer>
 
 {% block javascript %}

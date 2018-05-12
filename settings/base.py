@@ -183,3 +183,9 @@ from django.conf.locale.en import formats as en_formats
 en_formats.DATETIME_FORMAT = 'Y-m-d H:i:s'
 en_formats.SHORT_DATETIME_FORMAT = 'Y-m-d H:i'
 en_formats.SHORT_DATE_FORMAT = 'Y-m-d'
+
+# Compatibility fix for the 'messages' framework and Bootstrap (error -> danger)
+from django.contrib.messages import constants as messages
+MESSAGE_TAGS = {
+    messages.ERROR: 'danger',
+}

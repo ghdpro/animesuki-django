@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+
+{% block head_title %}Create Media | AnimeSuki{% endblock head_title %}
+
+{% block content %}
+    <h1>Create Media</h1>
+    <form action="{% url 'media:create' 'media' %}" method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Save</button>
+    </form>
+{% endblock content %}
