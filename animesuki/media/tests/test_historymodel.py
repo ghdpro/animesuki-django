@@ -123,8 +123,8 @@ class HistoryModelTest(TestCase):
         self.assertEqual(cr.object_type, ContentType.objects.get_for_model(obj))
         # Object id should be None
         self.assertIsNone(cr.object_id)
-        # Object str should be empty
-        self.assertEqual(cr.object_str, '')
+        # Object str should be equal to string representation of object
+        self.assertEqual(cr.object_str, str(obj))
         # Related type should be None
         self.assertIsNone(cr.related_type)
         # Request type should be ADD

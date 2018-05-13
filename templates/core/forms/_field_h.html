@@ -1,0 +1,38 @@
+{% load animesuki %}
+<div class="form-group row">
+{% if field|is_checkbox %}
+    {% if label_css %}<div class="{{ label_css }}"></div>{% endif %}
+    {% if field_css %}<div class="{{ field_css }}">{% endif %}
+        <div class="form-check">
+            {% if field.errors %}
+                {{ field|field_css:'form-check-input is-invalid' }}
+                <label class="form-check-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                <div class="invalid-feedback">
+                {% for error in field.errors %}
+                    {{ error|escape }}
+                {% endfor %}
+                </div>
+            {% else %}
+                {{ field|field_css:'form-check-input' }}
+                <label class="form-check-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                {% if field.help_text %}<small class="form-text text-muted">{{ field.help_text }}</small>{% endif %}
+            {% endif %}
+        </div>
+    {% if field_css %}</div>{% endif %}
+{% else %}
+    <label class="col-form-label{{ label_css|spacer }}" for="{{ field.id_for_label }}">{{ field.label }}</label>
+    {% if field_css %}<div class="{{ field_css }}">{% endif %}
+        {% if field.errors %}
+            {{ field|field_css:'form-control is-invalid' }}
+            <div class="invalid-feedback">
+            {% for error in field.errors %}
+                {{ error|escape }}
+            {% endfor %}
+            </div>
+        {% else %}
+            {{ field|field_css:'form-control' }}
+            {% if field.help_text %}<small class="form-text text-muted">{{ field.help_text }}</small>{% endif %}
+        {% endif %}
+    {% if field_css %}</div>{% endif %}
+{% endif %}
+</div>

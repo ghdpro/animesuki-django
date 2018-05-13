@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load animesuki %}
 
 {% block head_title %}Create Media | AnimeSuki{% endblock head_title %}
 
@@ -6,7 +7,31 @@
     <h1>Create Media</h1>
     <form action="{% url 'media:create' 'media' %}" method="post">
         {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit">Save</button>
+        {% include 'core/forms/_head.html' with form=form only %}
+        {% for field in form.visible_fields %}
+            {% if field in form|subset:'media_type,sub_type,status,is_adult,episodes,duration,volumes,chapters,start_date,start_precision,end_date,end_precision,season_year,season' %}
+                {% if field == form.media_type %}
+                    {% include 'core/forms/_row_h.html' with fields=form|subset:'media_type,sub_type,status,is_adult' label='Type / Status' label_css='col-sm-2' field_css='col-sm-2,col-sm-3,col-sm-3,col-sm-2' only %}
+                {% elif field == form.episodes %}
+                    {% include 'core/forms/_row_h.html' with fields=form|subset:'episodes,duration' label='Episodes / Duration' label_css='col-sm-2' field_css='col-sm-5,col-sm-5' only %}
+                {% elif field == form.volumes %}
+                    {% include 'core/forms/_row_h.html' with fields=form|subset:'volumes,chapters' label='Volumes / Chapters' label_css='col-sm-2' field_css='col-sm-5,col-sm-5' only %}
+                {% elif field == form.start_date %}
+                    {% include 'core/forms/_row_h.html' with fields=form|subset:'start_date,start_precision' label=form.start_date.label label_css='col-sm-2' field_css='col-sm-7,col-sm-3' only %}
+                {% elif field == form.end_date %}
+                    {% include 'core/forms/_row_h.html' with fields=form|subset:'end_date,end_precision' label=form.end_date.label label_css='col-sm-2' field_css='col-sm-7,col-sm-3' only %}
+                {% elif field == form.season %}
+                    {% include 'core/forms/_row_h.html' with fields=form|subset:'season,season_year' label=form.season.label label_css='col-sm-2' field_css='col-sm-5,col-sm-5' only %}
+                {% endif %}
+            {% else %}
+                {% include 'core/forms/_field_h.html' with field=field label_css='col-sm-2' field_css='col-sm-10' only %}
+            {% endif %}
+        {% endfor %}
+	    <div class="form-group row">
+		    <div class="col-sm-2"></div>
+		    <div class="col-sm-10">
+                <button type="submit" class="btn btn-primary"><i class="fa fa-floppy-o fa-fw"></i> Save</button>
+            </div>
+        </div>
     </form>
 {% endblock content %}

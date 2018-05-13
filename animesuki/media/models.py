@@ -1,7 +1,6 @@
 """AnimeSuki Media models"""
 
 from django.db import models
-from django.utils.text import slugify
 
 from animesuki.history.models import HistoryModel
 from animesuki.core.utils import DatePrecision
@@ -82,7 +81,7 @@ class Media(HistoryModel):
         )
 
     title = models.CharField('title', max_length=250, blank=True)
-    slug = models.SlugField('slug', max_length=250, unique=True, allow_unicode=True)
+    slug = models.SlugField('slug', max_length=250, allow_unicode=True)
     media_type = models.PositiveSmallIntegerField('type', choices=Type.choices, default=Type.ANIME)
     sub_type = models.PositiveSmallIntegerField('sub Type', choices=SubType.choices, default=SubType.UNKNOWN)
     status = models.PositiveSmallIntegerField('status', choices=Status.choices, default=Status.AUTO)
@@ -107,10 +106,7 @@ class Media(HistoryModel):
     def __str__(self):
         return self.title
 
-    def save(self, *args, **kwargs):
-        self.slug = slugify(self.title)
-        super().save(*args, **kwargs)
-
     class Meta:
         db_table = 'media'
         verbose_name_plural = 'media'
+        unique_together = ('slug', 'media_type')

@@ -7,12 +7,12 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from animesuki.history.views import HistoryFormViewMixin
 
 from .models import Media
-from .forms import MediaCreateUpdateForm
+from .forms import MediaCreateForm
 
 
 class MediaCreateView(LoginRequiredMixin, HistoryFormViewMixin, CreateView):
     template_name = 'media/create.html'
-    form_class = MediaCreateUpdateForm
+    form_class = MediaCreateForm
     model = Media
 
     def get_success_url(self):
