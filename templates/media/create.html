@@ -4,8 +4,9 @@
 {% block head_title %}Create Media | AnimeSuki{% endblock head_title %}
 
 {% block content %}
-    <h1>Create Media</h1>
-    <form action="{% url 'media:create' 'media' %}" method="post">
+    {% block content_title %}<h1>Create Media</h1>{% endblock content_title %}
+    <p>Leave unknown fields blank.</p>
+    <form action="{% block form_url %}{% url 'media:create' 'media' %}{% endblock form_url %}" method="post">
         {% csrf_token %}
         {% include 'core/forms/_head.html' with form=form only %}
         {% for field in form.visible_fields %}
@@ -31,6 +32,7 @@
 		    <div class="col-sm-2"></div>
 		    <div class="col-sm-10">
                 <button type="submit" class="btn btn-primary"><i class="fa fa-floppy-o fa-fw"></i> Save</button>
+                {% block form_buttons %}{% endblock form_buttons %}
             </div>
         </div>
     </form>

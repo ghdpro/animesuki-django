@@ -1,0 +1,15 @@
+{% extends 'media/create.html' %}
+{% load animesuki %}
+
+{% block head_title %}Edit {{ media.title }} | {{ media.get_media_type_display }} | AnimeSuki{% endblock head_title %}
+
+{% block content_title %}
+    <div class="d-flex flex-wrap">
+        <h1><span class="text-muted">Edit</span> {{ media.title }}</h1>
+        {% if user.is_authenticated %}{% include 'media/_menu.html' with media=media only %}{% endif %}
+    </div>
+{% endblock content_title %}
+
+{% block form_url %}{% get_absolute_url media 'media:update' %}{% endblock form_url %}
+
+{% block form_buttons %}<a href="{{ media.get_absolute_url }}" class="btn btn-secondary ml-2"><i class="fa fa-undo fa-fw"></i> Back</a>{% endblock form_buttons %}

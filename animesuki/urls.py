@@ -7,11 +7,13 @@ from django.contrib import admin
 
 from allauth.account import views as account
 
-from animesuki.media.views import (MediaCreateView)
+from animesuki.media.views import (MediaDetailView, MediaCreateView, MediaUpdateView)
 
 
 media_patterns = ([
     path('create', MediaCreateView.as_view(), name='create'),
+    path('<slug:slug>', MediaDetailView.as_view(), name='detail'),
+    path('<slug:slug>/edit', MediaUpdateView.as_view(), name='update'),
 ], 'media')
 
 account_patterns = [

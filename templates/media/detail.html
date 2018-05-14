@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+{% load animesuki %}
+
+{% block head_title %}{{ media.title }} | {{ media.get_media_type_display }} | AnimeSuki{% endblock head_title %}
+
+{% block meta %}
+    <link rel="canonical" href="{% build_absolute_uri request media %}">
+{% endblock %}
+
+{% block content %}
+    <div class="d-flex flex-wrap">
+        <h1>{{ media.title }}</h1>
+        {% if user.is_authenticated %}{% include 'media/_menu.html' with media=media only %}{% endif %}
+    </div>
+{% with th_class='col-2 d-none d-sm-inline-block' td_class='col-10 d-inline-block' %}
+    <table class="table table-sm table-hover">
+    <tbody>
+    <tr class="d-flex">
+        <th class="{{ th_class }}">Type</th>
+        <td class="{{ td_class }}">{{ media.get_sub_type_display }}{% if media.is_adult %} (R-18){% endif %}{% spaceless %}
+            {% if media.media_type == media.Type.ANIME and media.sub_type != media.SubType.MOVIE or media.episodes > 1 %}
+                , {% if media.episodes is not None %}<span class="text-nowrap">{{ media.episodes }} episode{{ media.episodes|pluralize }}</span>{% else %}unknown number of episodes{% endif %}
+            {% elif media.media_type != media.Type.ANIME and media.volumes > 1 %}
+                , <span class="text-nowrap">{{ media.volumes }} volume{{ media.volumes|pluralize }}</span>
+            {% elif media.media_type != media.Type.ANIME and media.chapters > 1 %}
+                , <span class="text-nowrap">{{ media.chapters }} chapter{{ media.chapters|pluralize }}</span>
+            {% elif media.media_type != media.Type.ANIME %}
+                , unknown number of chapters
+            {% endif %}
+        {% endspaceless %}</td>
+    </tr>
+    <tr class="d-flex">
+        <th class="{{ th_class }}">Status</th>
+        <td class="{{ td_class }}">{{ media.get_status }}</td>
+    </tr>
+    {% if media.description %}
+    <tr class="d-flex">
+        <th class="{{ th_class }}">Description</th>
+        <td class="{{ td_class }}">{{ media.description }}</td>
+    </tr>
+    {% endif %}
+    {% if media.synopsis %}
+    <tr class="d-flex">
+        <th class="{{ th_class }}">Synopsis</th>
+        <td class="{{ td_class }}">{{ media.synopsis }}</td>
+    </tr>
+    {% endif %}
+    </tbody>
+    </table>
+{% endwith %}
+{% endblock content %}

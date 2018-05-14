@@ -30,3 +30,7 @@ class MediaCreateForm(forms.ModelForm):
             'description': forms.Textarea(attrs={'rows': 2}),
             'synopsis': forms.Textarea(attrs={'rows': 2})
         }
+
+
+class MediaUpdateForm(MediaCreateForm):
+    slug = forms.CharField(required=True)

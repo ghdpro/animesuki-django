@@ -52,3 +52,7 @@ footer.container, footer.container a:link, footer.container a:active, footer.con
         margin-top: 0;
     }
 }
+
+.form-control::placeholder {
+    color: #B0B0B0;
+}

@@ -1,6 +1,9 @@
 """AnimeSuki Media models"""
 
 from django.db import models
+from django.urls import reverse
+from django.utils import timezone
+from django.utils.text import slugify
 
 from animesuki.history.models import HistoryModel
 from animesuki.core.utils import DatePrecision
@@ -85,7 +88,7 @@ class Media(HistoryModel):
     media_type = models.PositiveSmallIntegerField('type', choices=Type.choices, default=Type.ANIME)
     sub_type = models.PositiveSmallIntegerField('sub Type', choices=SubType.choices, default=SubType.UNKNOWN)
     status = models.PositiveSmallIntegerField('status', choices=Status.choices, default=Status.AUTO)
-    is_adult = models.BooleanField('adult', default=False)
+    is_adult = models.BooleanField('r-18', default=False)
     episodes = models.IntegerField('episodes', null=True, blank=True)
     duration = models.IntegerField('duration', null=True, blank=True)
     volumes = models.IntegerField('volumes', null=True, blank=True)
@@ -105,6 +108,33 @@ class Media(HistoryModel):
 
     def __str__(self):
         return self.title
+
+    def get_status(self):
+        if self.status != self.Status.AUTO:
+            return self.get_status_display()
+        status = {
+            self.Type.ANIME: {
+                'future': 'Not yet aired',
+                'present': 'Currently airing',
+                'past': 'Finished'
+            },
+            self.Type.MANGA: {
+                'future': 'Not yet published',
+                'present': 'Currently publishing',
+                'past': 'Finished'
+            },
+        }
+        status[self.Type.NOVEL] = status[self.Type.MANGA]
+        now = timezone.now()
+        if self.end_date and self.end_date <= now:
+            return status[self.media_type]['past']
+        elif not self.start_date or self.start_date > now:
+            return status[self.media_type]['future']
+        else:
+            return status[self.media_type]['present']
+
+    def get_absolute_url(self, view='media:detail'):
+        return reverse(view, args=[slugify(self.get_media_type_display()), self.slug])
 
     class Meta:
         db_table = 'media'
