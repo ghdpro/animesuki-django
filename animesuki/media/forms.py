@@ -3,7 +3,7 @@
 from django import forms
 from django.utils.text import slugify
 
-from .models import Media
+from .models import Media, MediaArtwork
 
 
 class MediaCreateForm(forms.ModelForm):
@@ -34,3 +34,15 @@ class MediaCreateForm(forms.ModelForm):
 
 class MediaUpdateForm(MediaCreateForm):
     slug = forms.CharField(required=True)
+
+
+class MediaArtworkForm(forms.ModelForm):
+    comment = forms.CharField(label='Comment / Source', required=False)
+
+    class Meta:
+        model = MediaArtwork
+        fields = ['image']
+
+
+MediaArtworkFormset = forms.models.inlineformset_factory(Media, MediaArtwork, form=MediaArtworkForm,
+                                                         extra=1, can_delete=True)

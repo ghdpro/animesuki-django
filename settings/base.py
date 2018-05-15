@@ -26,6 +26,12 @@ STATICFILES_DIRS = (
 )
 STATIC_ROOT = os.path.join(FILE_DIR, 'static')
 
+MEDIA_URL = '/artwork/'
+MEDIA_ROOT = os.path.join(FILE_DIR, 'artwork')
+
+FILE_UPLOAD_DIRECTORY_PERMISSIONS = 0o775
+FILE_UPLOAD_PERMISSIONS = 0o664
+
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',

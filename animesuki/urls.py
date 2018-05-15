@@ -2,18 +2,20 @@
 
 from django.urls import path, re_path, include
 from django.conf import settings
+from django.conf.urls.static import static
 from django.views.generic.base import RedirectView, TemplateView
 from django.contrib import admin
 
 from allauth.account import views as account
 
-from animesuki.media.views import (MediaDetailView, MediaCreateView, MediaUpdateView)
+from animesuki.media.views import (MediaDetailView, MediaCreateView, MediaUpdateView, MediaArtworkView)
 
 
 media_patterns = ([
     path('create', MediaCreateView.as_view(), name='create'),
     path('<slug:slug>', MediaDetailView.as_view(), name='detail'),
     path('<slug:slug>/edit', MediaUpdateView.as_view(), name='update'),
+    path('<slug:slug>/artwork', MediaArtworkView.as_view(), name='artwork'),
 ], 'media')
 
 account_patterns = [
@@ -44,4 +46,5 @@ urlpatterns = [
 
 if settings.DEBUG:
     import debug_toolbar
-    urlpatterns += [path('__debug__/', include(debug_toolbar.urls))]
+    urlpatterns += [path('__debug__/', include(debug_toolbar.urls))] + \
+                   static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

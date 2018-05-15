@@ -5,8 +5,9 @@ from django.urls import reverse
 from django.utils import timezone
 from django.utils.text import slugify
 
-from animesuki.history.models import HistoryModel
+from animesuki.core.models import ArtworkModel
 from animesuki.core.utils import DatePrecision
+from animesuki.history.models import HistoryModel
 
 
 class Media(HistoryModel):
@@ -140,3 +141,17 @@ class Media(HistoryModel):
         db_table = 'media'
         verbose_name_plural = 'media'
         unique_together = ('slug', 'media_type')
+
+
+class MediaArtwork(ArtworkModel):
+    media = models.ForeignKey(Media, on_delete=models.PROTECT)
+
+    ARTWORK_FOLDER = 'media'
+    ARTWORK_SIZES = ((75, 75, 't75'), (150, 150, 't150'), (225, 225, 't225'), (450, 450, 't450'),
+                     (225, 450, '225w'), (300, 600, '300w'), (450, 900, '450w'), (600, 1200, '600w'))
+
+    def folder_id(self):
+        return self.media.slug
+
+    class Meta:
+        db_table = 'media_artwork'

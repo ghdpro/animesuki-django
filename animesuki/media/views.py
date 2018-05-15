@@ -3,10 +3,10 @@
 from django.views.generic import DetailView, CreateView, UpdateView
 from django.contrib.auth.mixins import LoginRequiredMixin
 
-from animesuki.history.views import HistoryFormViewMixin
+from animesuki.history.views import HistoryFormViewMixin, HistoryFormsetViewMixin
 
 from .models import Media
-from .forms import MediaCreateForm, MediaUpdateForm
+from .forms import MediaCreateForm, MediaUpdateForm, MediaArtworkForm, MediaArtworkFormset
 
 
 class MediaDetailView(DetailView):
@@ -30,3 +30,12 @@ class MediaUpdateView(LoginRequiredMixin, HistoryFormViewMixin, UpdateView):
 
     def get_success_url(self):
         return self.object.get_absolute_url('media:update')
+
+class MediaArtworkView(LoginRequiredMixin, HistoryFormsetViewMixin, UpdateView):
+    template_name = 'media/artwork.html'
+    form_class = MediaArtworkForm
+    formset_class = MediaArtworkFormset
+    model = Media
+
+    def get_success_url(self):
+        return self.object.get_absolute_url('media:artwork')

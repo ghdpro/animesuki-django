@@ -1,7 +1,9 @@
 """AnimeSuki Core models"""
 
 import logging
+import subprocess
 from hashlib import md5
+from pathlib import Path
 from urllib.parse import urlencode
 
 from django.db import models
@@ -133,6 +135,61 @@ class Option(models.Model):
 
     def __str__(self):
         return self.code
+
+
+def artwork_upload_location(instance, filename):
+    # Pattern: [artwork_root]/[ARTWORK_FOLDER]/[folder_id()]/[filename].jpg
+    return str(Path(slugify(instance.ARTWORK_FOLDER)+'', str(instance.folder_id()).lower(),
+                    slugify(Path(filename).stem[:instance.ARTWORK_NAME_MAX_LENGTH])+'').with_suffix('.jpg'))
+
+
+class ArtworkModel(models.Model):
+    image = models.ImageField(upload_to=artwork_upload_location)
+
+    ARTWORK_FOLDER_CLASS = 'artwork'
+    ARTWORK_NAME_MAX_LENGTH = 50
+    ARTWORK_MAX_SIZE = (2000, 2000)
+    ARTWORK_JPEG_QUALITY = 85
+    ARTWORK_JPEG_QUALITY_THUMB = 80
+    ARTWORK_SIZES = ((1000, 1000, '1000w'),)
+
+    def folder_id(self):
+        # Child classes should override this function
+        return None
+
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        # The following operations are applied to the image file -every time- the model is saved (so do it only once!)
+        # ImageMagick is used here as Pillow uses way too much memory
+        # Strip unnecessary meta data and resize uploaded image down where necessary
+        cmd = ['convert', self.image.path+'[0]', '-colorspace', 'Lab', '-filter', 'Lanczos',
+               '-resize', '{}x{}>'.format(*self.ARTWORK_MAX_SIZE), '-colorspace', 'sRGB',
+               '-strip', '-quality', str(self.ARTWORK_JPEG_QUALITY), self.image.path]
+        result = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        if result.returncode == 0:
+            logger.info('Artwork: saved file "{}"'.format(self.image.path))
+        else:
+            logger.error('Artwork: ImageMagick convert returned exit code {}:\n {}'.
+                         format(result.returncode, result.stderr.decode('utf-8')))
+        # Create alternative sizes
+        for size in self.ARTWORK_SIZES:
+            file = str(Path(Path(self.image.path).parent, Path(self.image.path).stem + '-' + str(size[2]) + '.jpg'))
+            cmd = ['convert', self.image.path+'[0]', '-colorspace', 'Lab', '-filter', 'Lanczos',
+                   '-thumbnail', '{}x{}>'.format(size[0], size[1]), '-colorspace', 'sRGB', '-strip']
+            if size[0] > 200:
+                cmd.extend(['-quality', str(self.ARTWORK_JPEG_QUALITY)])
+            else:
+                cmd.extend(['-unsharp', '0x.5', '-quality', str(self.ARTWORK_JPEG_QUALITY_THUMB)])
+            cmd.append(file)
+            result = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            if result.returncode == 0:
+                logger.info('Artwork: saved file "{}"'.format(file))
+            else:
+                logger.error('Artwork: ImageMagick convert returned exit code {}:\n {}'.
+                             format(result.returncode, result.stderr.decode('utf-8')))
+
+    class Meta:
+        abstract = True
 
 
 class Language(models.Model):
