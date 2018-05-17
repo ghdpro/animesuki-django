@@ -150,7 +150,7 @@ class MediaArtwork(ArtworkModel):
     ARTWORK_SIZES = ((75, 75, 't75'), (150, 150, 't150'), (225, 225, 't225'), (450, 450, 't450'),
                      (225, 450, '225w'), (300, 600, '300w'), (450, 900, '450w'), (600, 1200, '600w'))
 
-    def folder_id(self):
+    def sub_folder(self):
         return self.media.slug
 
     class Meta:

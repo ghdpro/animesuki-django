@@ -1,6 +1,6 @@
 """AnimeSuki Template Tags & Filters"""
 
-from django import template, forms
+from django import template
 
 register = template.Library()
 
@@ -18,9 +18,23 @@ def field_css(field, css):
 
 
 @register.filter
-def is_checkbox(field):
-    """Returns True if field is a checkbox"""
-    return isinstance(field.field.widget, forms.CheckboxInput)
+def is_field(field, value=None):
+    """If value is not None, returns True if field name matches, otherwise returns field name"""
+    f = field.field.__class__.__name__.lower()
+    if value is not None:
+        return True if f == value else False
+    # value is None
+    return f
+
+
+@register.filter
+def is_widget(field, value=None):
+    """If value is not None, returns True if widget name matches, otherwise returns widget name"""
+    w = field.field.widget.__class__.__name__.lower()
+    if value is not None:
+        return True if w == value else False
+    # value is None
+    return w
 
 
 @register.filter
@@ -47,3 +61,9 @@ def build_absolute_uri(request, obj, *args):
     """"Calls build_absolute_uri() method on the request using an object's get_absolute_url method"""
     # Note: if you don't need the object argument, just use {{ request.build_absolute_uri }} directly
     return request.build_absolute_uri(obj.get_absolute_url(*args))
+
+
+@register.simple_tag
+def call_method(obj, func, *args, **kwargs):
+    """Calls method from specified object with arguments"""
+    return getattr(obj, func)(*args, **kwargs)

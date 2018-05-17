@@ -1,0 +1,28 @@
+{% load animesuki %}
+{% if formset.non_form_errors %}
+    {% for error in formset.non_form_errors %}
+        <div class="alert alert-danger">
+            <strong>Error:</strong> {{ error|escape }}
+        </div>
+    {% endfor %}
+{% endif %}
+{{ formset.management_form }}
+<div class="d-flex flex-wrap as-card-container">
+{% for form in formset %}
+    {% if form.instance.id %}
+        <div class="as-card-col p-1">
+            <div class="card text-center">
+                {% include 'core/artwork/_thumb.html' with object=form.instance x1='t225' x2='t450' css='img-fluid as-img-card' only %}
+                <div class="card-body p-0">
+                    {% for hidden in form.hidden_fields %}
+                        {{ hidden }}
+                    {% endfor %}
+                    {% include 'core/forms/_field.html' with field=form.DELETE row_css='form-group m-0' only %}
+                </div>
+            </div>
+        </div>
+    {% else %}
+</div>
+        {{ form.as_p }}
+    {% endif %}
+{% endfor %}

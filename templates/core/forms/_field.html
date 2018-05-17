@@ -1,6 +1,6 @@
 {% load animesuki %}
-<div class="form-group row">
-{% if field|is_checkbox %}
+{% if row_css %}<div class="{{ row_css }}">{% endif %}
+{% if field|is_widget:'checkboxinput' %}
     {% if label_css %}<div class="{{ label_css }}"></div>{% endif %}
     {% if field_css %}<div class="{{ field_css }}">{% endif %}
         <div class="form-check">
@@ -35,4 +35,4 @@
         {% endif %}
     {% if field_css %}</div>{% endif %}
 {% endif %}
-</div>
+{% if row_css %}</div>{% endif %}

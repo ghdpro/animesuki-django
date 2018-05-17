@@ -56,3 +56,30 @@ footer.container, footer.container a:link, footer.container a:active, footer.con
 .form-control::placeholder {
     color: #B0B0B0;
 }
+
+.as-card-container {
+    margin: -0.25rem -0.25rem 0 -0.25rem;
+}
+
+@media (max-width: 439.98px) { .as-card-col { width: 50% } }
+@media (min-width: 440px) and (max-width: 539.98px) { .as-card-col { width: 33% } }
+@media (min-width: 540px) and (max-width: 679.98px) { .as-card-col { width: 25% } }
+@media (min-width: 680px) and (max-width: 839.98px) { .as-card-col { width: 20% } }
+@media (min-width: 840px) and (max-width: 1199.98px) { .as-card-col { width: 16.66% } }
+@media (min-width: 1200px) { .as-card-col { width: 14.28% } }
+
+.as-card-col:hover > div {
+    border-color: #007BFF;
+}
+
+.as-img-card {
+    object-fit: cover;
+    height: 225px;
+    font-size:2rem;
+}
+
+.as-img-table {
+    object-fit: cover;
+    width: 55px;
+    height: 75px;
+}

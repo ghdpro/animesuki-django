@@ -4,7 +4,7 @@
     {% for field in fields %}
         {% if field_css %}<div class="{{ field_css|csvlist:forloop.counter0 }}">{% endif %}
         {% if field != form.DELETE or form.instance.id %}
-            {% if field|is_checkbox %}
+            {% if field|is_widget:'checkboxinput' %}
                 <div class="form-check pt-2">
                     {% if field.errors %}
                         {{ field|field_css:'form-check-input is-invalid' }}

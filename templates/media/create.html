@@ -25,7 +25,7 @@
                     {% include 'core/forms/_row_h.html' with fields=form|subset:'season,season_year' label=form.season.label label_css='col-sm-2' field_css='col-sm-5,col-sm-5' only %}
                 {% endif %}
             {% else %}
-                {% include 'core/forms/_field_h.html' with field=field label_css='col-sm-2' field_css='col-sm-10' only %}
+                {% include 'core/forms/_field.html' with field=field row_css='form-group row' label_css='col-sm-2' field_css='col-sm-10' only %}
             {% endif %}
         {% endfor %}
 	    <div class="form-group row">

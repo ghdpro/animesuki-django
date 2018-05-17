@@ -139,23 +139,32 @@ class Option(models.Model):
 
 def artwork_upload_location(instance, filename):
     # Pattern: [artwork_root]/[ARTWORK_FOLDER]/[folder_id()]/[filename].jpg
-    return str(Path(slugify(instance.ARTWORK_FOLDER)+'', str(instance.folder_id()).lower(),
-                    slugify(Path(filename).stem[:instance.ARTWORK_NAME_MAX_LENGTH])+'').with_suffix('.jpg'))
+    return str(Path(slugify(instance.ARTWORK_FOLDER) +'', str(instance.sub_folder()).lower(),
+                    slugify(Path(filename).stem[:instance.ARTWORK_NAME_MAX_LENGTH]) +'').with_suffix('.jpg'))
 
 
 class ArtworkModel(models.Model):
     image = models.ImageField(upload_to=artwork_upload_location)
 
-    ARTWORK_FOLDER_CLASS = 'artwork'
+    ARTWORK_FOLDER = 'artwork'
     ARTWORK_NAME_MAX_LENGTH = 50
     ARTWORK_MAX_SIZE = (2000, 2000)
     ARTWORK_JPEG_QUALITY = 85
     ARTWORK_JPEG_QUALITY_THUMB = 80
     ARTWORK_SIZES = ((1000, 1000, '1000w'),)
 
-    def folder_id(self):
+    def __str__(self):
+        return Path(self.image.path).stem
+
+    def sub_folder(self):
         # Child classes should override this function
         return None
+
+    def get_image_path(self, size):
+        return str(Path(Path(self.image.path).parent, Path(self.image.path).stem + '-' + str(size) + '.jpg'))
+
+    def get_image_url(self, size):
+        return Path(Path(self.image.url).parent, Path(self.image.url).stem + '-' + str(size) + '.jpg')
 
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
@@ -173,7 +182,7 @@ class ArtworkModel(models.Model):
                          format(result.returncode, result.stderr.decode('utf-8')))
         # Create alternative sizes
         for size in self.ARTWORK_SIZES:
-            file = str(Path(Path(self.image.path).parent, Path(self.image.path).stem + '-' + str(size[2]) + '.jpg'))
+            file = self.get_image_path(size[2])
             cmd = ['convert', self.image.path+'[0]', '-colorspace', 'Lab', '-filter', 'Lanczos',
                    '-thumbnail', '{}x{}>'.format(size[0], size[1]), '-colorspace', 'sRGB', '-strip']
             if size[0] > 200:
@@ -187,6 +196,34 @@ class ArtworkModel(models.Model):
             else:
                 logger.error('Artwork: ImageMagick convert returned exit code {}:\n {}'.
                              format(result.returncode, result.stderr.decode('utf-8')))
+
+    def delete(self, *args, **kwargs):
+        storage, path, width = self.image.storage, self.image.path, self.image.width
+        super().delete(*args, **kwargs)
+        # Delete original image
+        try:
+            storage.delete(path)
+            logger.info('Artwork: deleted file "{}"'.format(path))
+        except FileNotFoundError:
+            logger.warning('Artwork: attempt to delete file "{}" failed: file not found'.format(path))
+        # Delete thumbnails
+        for size in self.ARTWORK_SIZES:
+            file = self.get_image_path(size[2])
+            try:
+                storage.delete(file)
+                logger.info('Artwork: deleted file "{}"'.format(file))
+            except FileNotFoundError:
+                logger.warning('Artwork: attempt to delete file "{}" failed: file not found'.format(file))
+        # Delete related folders
+        sub_folder = Path(path).parent
+        artwork_folder = sub_folder.parent
+        try:
+            sub_folder.rmdir()
+            logger.info('Artwork: deleted folder "{}"'.format(sub_folder))
+            artwork_folder.rmdir()
+            logger.info('Artwork: deleted folder "{}"'.format(artwork_folder))
+        except OSError:
+            pass
 
     class Meta:
         abstract = True

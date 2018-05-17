@@ -1,0 +1,5 @@
+{% load animesuki %}
+<picture>
+    <source media="(min-width: 768px)" srcset="{% call_method object 'get_image_url' size=x1 %}, {% call_method object 'get_image_url' size=x2 %} 2x">
+    <img src="{% call_method object 'get_image_url' size=x1 %}"{% if css %} class="{{ css }}"{% endif %} alt="{{ object }}" />
+</picture>
