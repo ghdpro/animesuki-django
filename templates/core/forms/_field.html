@@ -6,7 +6,7 @@
         <div class="form-check">
             {% if field.errors %}
                 {{ field|field_css:'form-check-input is-invalid' }}
-                <label class="form-check-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                {% if not hide_label %}<label class="form-check-label" for="{{ field.id_for_label }}">{{ field.label }}</label>{% endif %}
                 <div class="invalid-feedback">
                 {% for error in field.errors %}
                     {{ error|escape }}
@@ -14,23 +14,31 @@
                 </div>
             {% else %}
                 {{ field|field_css:'form-check-input' }}
-                <label class="form-check-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                {% if not hide_label %}<label class="form-check-label" for="{{ field.id_for_label }}">{{ field.label }}</label>{% endif %}
                 {% if field.help_text %}<small class="form-text text-muted">{{ field.help_text }}</small>{% endif %}
             {% endif %}
         </div>
     {% if field_css %}</div>{% endif %}
 {% else %}
-    <label class="col-form-label{{ label_css|spacer }}" for="{{ field.id_for_label }}">{{ field.label }}</label>
+    {% if not hide_label %}<label class="col-form-label{{ label_css|spacer }}" for="{{ field.id_for_label }}">{{ field.label }}</label>{% endif %}
     {% if field_css %}<div class="{{ field_css }}">{% endif %}
         {% if field.errors %}
-            {{ field|field_css:'form-control is-invalid' }}
+            {% if field|is_field:'filefield' or field|is_field:'imagefield' %}
+                {{ field|field_css:'form-control-file is-invalid' }}
+            {% else %}
+                {{ field|field_css:'form-control is-invalid' }}
+            {% endif %}
             <div class="invalid-feedback">
             {% for error in field.errors %}
                 {{ error|escape }}
             {% endfor %}
             </div>
         {% else %}
-            {{ field|field_css:'form-control' }}
+            {% if field|is_field:'filefield' or field|is_field:'imagefield' %}
+                {{ field|field_css:'form-control-file' }}
+            {% else %}
+                {{ field|field_css:'form-control' }}
+            {% endif %}
             {% if field.help_text %}<small class="form-text text-muted">{{ field.help_text }}</small>{% endif %}
         {% endif %}
     {% if field_css %}</div>{% endif %}

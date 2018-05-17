@@ -12,7 +12,12 @@
     {% if form.instance.id %}
         <div class="as-card-col p-1">
             <div class="card text-center">
-                {% include 'core/artwork/_thumb.html' with object=form.instance x1='t225' x2='t450' css='img-fluid as-img-card' only %}
+                {% include 'core/artwork/_thumb.html' with object=form.instance x1='t225' x2='t450' css='img-fluid as-img-card rounded-top' only %}
+                <div class="card-img-overlay py-0 px-2" title="Active">
+                    <div class="form-check text-right">
+                        <input type="radio" name="active" value="{{ form.instance.id }}" class="form-check-input position-static"{% if object.artwork.id == form.instance.id %} checked{% endif %} />
+                    </div>
+                </div>
                 <div class="card-body p-0">
                     {% for hidden in form.hidden_fields %}
                         {{ hidden }}
@@ -23,6 +28,26 @@
         </div>
     {% else %}
 </div>
-        {{ form.as_p }}
+        <div class="form-row">
+            {% for field in form.visible_fields %}
+                {% if field != form.DELETE %}
+                    <div class="col-sm-6"><label>{{ field.label }}</label></div>
+                {% endif %}
+            {% endfor %}
+        </div>
+        <div class="form-row{% if forloop.last %} mb-3{% endif %}">
+            {% for field in form.visible_fields %}
+                {% if field != form.DELETE %}
+                    <div class="col-sm-6">
+                        {% if forloop.first %}
+                            {% for hidden in form.hidden_fields %}
+                                {{ hidden }}
+                            {% endfor %}
+                        {% endif %}
+                        {% include 'core/forms/_field.html' with field=field hide_label=True only %}
+                    </div>
+                {% endif %}
+            {% endfor %}
+        </div>
     {% endif %}
 {% endfor %}

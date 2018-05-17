@@ -1,0 +1,15 @@
+{% load animesuki %}
+<div class="form-group row">
+    {% if label %}<label class="col-form-label{{ label_css|spacer }}">{{ label }}</label>{% endif %}
+    {% for field in fields %}
+        {% if field_css %}<div class="{{ field_css|csvlist:forloop.counter0 }}">{% endif %}
+        {% if field != form.DELETE or form.instance.id %}
+            {% if field|is_widget:'checkboxinput' %}
+                {% include 'core/forms/_field.html' with field=field field_css='pt-2' only %}
+            {% else %}
+                {% include 'core/forms/_field.html' with field=field hide_label=True only %}
+            {% endif %}
+        {% endif %}
+        {% if field_css %}</div>{% endif %}
+    {% endfor %}
+</div>

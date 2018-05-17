@@ -57,6 +57,10 @@ footer.container, footer.container a:link, footer.container a:active, footer.con
     color: #B0B0B0;
 }
 
+.form-row > div > label {
+    font-weight: bold;
+}
+
 .as-card-container {
     margin: -0.25rem -0.25rem 0 -0.25rem;
 }

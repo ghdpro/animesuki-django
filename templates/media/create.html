@@ -12,17 +12,17 @@
         {% for field in form.visible_fields %}
             {% if field in form|subset:'media_type,sub_type,status,is_adult,episodes,duration,volumes,chapters,start_date,start_precision,end_date,end_precision,season_year,season' %}
                 {% if field == form.media_type %}
-                    {% include 'core/forms/_row_h.html' with fields=form|subset:'media_type,sub_type,status,is_adult' label='Type / Status' label_css='col-sm-2' field_css='col-sm-2,col-sm-3,col-sm-3,col-sm-2' only %}
+                    {% include 'core/forms/_row.html' with fields=form|subset:'media_type,sub_type,status,is_adult' label='Type / Status' label_css='col-sm-2' field_css='col-sm-2,col-sm-3,col-sm-3,col-sm-2' only %}
                 {% elif field == form.episodes %}
-                    {% include 'core/forms/_row_h.html' with fields=form|subset:'episodes,duration' label='Episodes / Duration' label_css='col-sm-2' field_css='col-sm-5,col-sm-5' only %}
+                    {% include 'core/forms/_row.html' with fields=form|subset:'episodes,duration' label='Episodes / Duration' label_css='col-sm-2' field_css='col-sm-5,col-sm-5' only %}
                 {% elif field == form.volumes %}
-                    {% include 'core/forms/_row_h.html' with fields=form|subset:'volumes,chapters' label='Volumes / Chapters' label_css='col-sm-2' field_css='col-sm-5,col-sm-5' only %}
+                    {% include 'core/forms/_row.html' with fields=form|subset:'volumes,chapters' label='Volumes / Chapters' label_css='col-sm-2' field_css='col-sm-5,col-sm-5' only %}
                 {% elif field == form.start_date %}
-                    {% include 'core/forms/_row_h.html' with fields=form|subset:'start_date,start_precision' label=form.start_date.label label_css='col-sm-2' field_css='col-sm-7,col-sm-3' only %}
+                    {% include 'core/forms/_row.html' with fields=form|subset:'start_date,start_precision' label=form.start_date.label label_css='col-sm-2' field_css='col-sm-7,col-sm-3' only %}
                 {% elif field == form.end_date %}
-                    {% include 'core/forms/_row_h.html' with fields=form|subset:'end_date,end_precision' label=form.end_date.label label_css='col-sm-2' field_css='col-sm-7,col-sm-3' only %}
+                    {% include 'core/forms/_row.html' with fields=form|subset:'end_date,end_precision' label=form.end_date.label label_css='col-sm-2' field_css='col-sm-7,col-sm-3' only %}
                 {% elif field == form.season %}
-                    {% include 'core/forms/_row_h.html' with fields=form|subset:'season,season_year' label=form.season.label label_css='col-sm-2' field_css='col-sm-5,col-sm-5' only %}
+                    {% include 'core/forms/_row.html' with fields=form|subset:'season,season_year' label=form.season.label label_css='col-sm-2' field_css='col-sm-5,col-sm-5' only %}
                 {% endif %}
             {% else %}
                 {% include 'core/forms/_field.html' with field=field row_css='form-group row' label_css='col-sm-2' field_css='col-sm-10' only %}
