@@ -15,6 +15,7 @@ from django.utils.functional import cached_property
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.postgres.fields import JSONField
+from django.contrib import messages
 
 from animesuki.core.utils import get_ip_from_request
 from animesuki.core.models import Option
@@ -22,15 +23,19 @@ from animesuki.core.models import Option
 logger = logging.getLogger(__name__)
 
 
-def object_to_dict(obj):
+def object_to_dict(obj, exclude_pk=True):
     """Converts model instance into a dictionary"""
     raw = model_to_dict(obj)
     data = OrderedDict()
     for field in obj._meta.get_fields():
-        # Excluded: primary key; Not supported: ManyToManyField and FileField
-        if field.name in raw and field.name != obj._meta.pk.name \
-                and not isinstance(field, ManyToManyField) and not isinstance(field, FileField):
-            data[field.name] = raw[field.name]
+        # ManyToManyField are not supported
+        if field.name in raw and not isinstance(field, ManyToManyField):
+            # Exclude primary key
+            if not exclude_pk or field.name != obj._meta.pk.name:
+                if isinstance(field, FileField):
+                    data[field.name] = str(raw[field.name])
+                else:
+                    data[field.name] = raw[field.name]
     return data
 
 
@@ -40,6 +45,24 @@ def object_data_revert(obj):
         data = obj.__class__.objects.get(pk=obj.pk)
         return object_to_dict(data)
     return None
+
+
+def formset_data_revert(formset):
+    """Obtains unaltered data for a formset from database"""
+    return [object_to_dict(obj, exclude_pk=False) for obj in formset.get_queryset().all()]
+
+
+def formset_data_changed(formset):
+    """Builds a list of (potentially altered and/or new) object instances from the formset"""
+    result = []
+    forms_to_delete = formset.deleted_forms
+    for form in formset.initial_forms:
+        if form.instance.pk and not form in forms_to_delete:
+            result.append(object_to_dict(form.instance, exclude_pk=False))
+    for form in formset.extra_forms:
+        if form.has_changed() and not (formset.can_delete and formset._should_delete_form(form)):
+            result.append(object_to_dict(form.instance, exclude_pk=False))
+    return result
 
 
 def changed_keys(a, b):
@@ -59,6 +82,15 @@ def filter_data(data, keys):
     for k in keys:
         if k in data:
             result[k] = data[k]
+    return result
+
+
+def format_object_str(object_type, object_str, object_id):
+    result = '{}'.format(object_type)
+    if object_str:
+        result += ' "{}"'.format(object_str)
+    if object_id:
+        result += ' ({})'.format(object_id)
     return result
 
 
@@ -109,12 +141,7 @@ class ChangeRequest(models.Model):
     date_modified = models.DateTimeField(auto_now=True, blank=True)
 
     def __str__(self):
-        result = '{}'.format(self.object_type)
-        if self.object_str:
-            result += ' "{}"'.format(self.object_str)
-        if self.object_id:
-            result += ' ({})'.format(self.object_id)
-        return result
+        return format_object_str(self.object_type, self.object_str, self.object_id)
 
     def set_object(self, obj):
         if obj.pk:
@@ -175,6 +202,7 @@ class HistoryModel(models.Model):
         self._cr = None
         self._request = None
         self._comment = ''
+        self._messages = []
 
     @property
     def request(self):
@@ -286,27 +314,29 @@ class HistoryModel(models.Model):
         cr.set_object(self)
         cr.set_request_type(request_type)
         cr.status = ChangeRequest.Status.PENDING
-        cr.data_revert = object_data_revert(self)
-        cr.data_changed = object_to_dict(self)
-        if cr.request_type == ChangeRequest.Type.MODIFY:
-            fields = changed_keys(cr.data_revert, cr.data_changed)
-            if len(fields) > 0:  # Leave data_revert & data_changed as-is if there were no changes
-                cr.data_revert = filter_data(cr.data_revert, fields)
-                cr.data_changed = filter_data(cr.data_changed, fields)
-        elif cr.request_type == ChangeRequest.Type.DELETE:
-            cr.data_changed = None
+        if cr.request_type != ChangeRequest.Type.RELATED:
+            cr.data_revert = object_data_revert(self)
+            cr.data_changed = object_to_dict(self)
+            if cr.request_type == ChangeRequest.Type.MODIFY:
+                fields = changed_keys(cr.data_revert, cr.data_changed)
+                if len(fields) > 0:  # Leave data_revert & data_changed as-is if there were no changes
+                    cr.data_revert = filter_data(cr.data_revert, fields)
+                    cr.data_changed = filter_data(cr.data_changed, fields)
+            elif cr.request_type == ChangeRequest.Type.DELETE:
+                cr.data_changed = None
         cr.comment = self.comment
         cr.set_user(self.request)
         return cr
 
-    def log(self):
+    def log(self, action=None, obj=None):
+        action = self._cr.get_request_type_display() if action is None else action
+        obj = format_object_str(self._cr.object_type, self._cr.object_str, self._cr.object_id) if obj is None else obj
         user = '"{}" ({})'.format(self._cr.user.username, self._cr.user.pk)
         mod = ''
         if self._cr.mod is not None:
             mod = ' mod "{}" ({})'.format(self._cr.mod.username, self._cr.mod.pk)
-        logger.info('ChangeRequest: [{}] [{}] {} user {}{}'.format(self._cr.get_request_type_display(),
-                                                                   self._cr.get_status_display(),
-                                                                   self._cr, user, mod))
+        logger.info('ChangeRequest: [{}] [{}] {} user {}{}'
+                    .format(action, self._cr.get_status_display(), obj, user, mod))
 
     def clean(self):
         self.sanity_checks
@@ -319,13 +349,51 @@ class HistoryModel(models.Model):
             # Approve immediately if right conditions are met
             self._cr.status = ChangeRequest.Status.APPROVED
         self._cr.save()
+        self.log()
         # Save actual model instance if: ChangeRequest object was saved -and- the request was self-approved
         # (ChangeRequest object will not have been saved if data was not altered)
         if self._cr.pk and self._cr.status == ChangeRequest.Status.APPROVED:
             super().save(*args, **kwargs)
             self._cr.set_object(self)
             self._cr.save()
+            # Generate message
+            verb = {ChangeRequest.Type.ADD: 'Added',
+                    ChangeRequest.Type.MODIFY: 'Updated'}  # DELETE or RELATED requests shouldn't be handled by save()
+            self.add_message(messages.SUCCESS, verb[self._cr.request_type], self._cr.object_type, self._cr.object_str)
+        if self._cr.status == ChangeRequest.Status.PENDING:
+            self.add_message_pending()
+        # Reset cached property
+        del self.has_pending
+
+    def save_related(self, formset):
+        self._cr = self.create_changerequest(request_type=ChangeRequest.Type.RELATED)
+        self._cr.related_type = ContentType.objects.get_for_model(formset.model)
+        self._cr.data_revert = formset_data_revert(formset)
+        self._cr.data_changed = formset_data_changed(formset)
+        if self.self_approve and self.sanity_checks and self.sanity_checks_extra:
+            # Approve immediately if right conditions are met
+            self._cr.status = ChangeRequest.Status.APPROVED
+        self._cr.save()
         self.log()
+        # Save formset if: ChangeRequest object was saved -and- the request was self-approved
+        # (ChangeRequest object will not have been saved if data was not altered)
+        if self._cr.pk and self._cr.status == ChangeRequest.Status.APPROVED:
+            formset.save()
+            # Generate message(s)
+            for obj in formset.new_objects:
+                self.add_message(messages.SUCCESS, 'Added', self._cr.related_type, obj)
+                self.log('Add', format_object_str(self._cr.related_type, obj, obj.pk))
+            for obj in formset.changed_objects:
+                self.add_message(messages.SUCCESS, 'Updated', self._cr.related_type, obj)
+                self.log('Modify', format_object_str(self._cr.related_type, obj, obj.pk))
+            for obj in formset.deleted_objects:
+                self.add_message(messages.SUCCESS, 'Deleted', self._cr.related_type, obj)
+                self.log('Delete', format_object_str(self._cr.related_type, obj, obj.pk))
+            # Refresh data_changed: any new instances should now have a pk set
+            self._cr.data_changed = formset_data_revert(formset)
+            self._cr.save()
+        elif self._cr.status == ChangeRequest.Status.PENDING:
+            self.add_message_pending()
         # Reset cached property
         del self.has_pending
 
@@ -336,27 +404,27 @@ class HistoryModel(models.Model):
             self._cr.status = ChangeRequest.Status.APPROVED
             self._cr.save()
             super().delete(*args, **kwargs)
+            self.add_message(messages.SUCCESS, 'Deleted', self._cr.object_type, self._cr.object_str)
         else:
             self._cr.save()
+        if self._cr.status == ChangeRequest.Status.PENDING:
+            self.add_message_pending()
         self.log()
         # Reset cached property
         del self.has_pending
 
-    def get_message(self):
-        if self._cr is None or not self._cr.pk:
-            return None
-        else:
-            verb = {ChangeRequest.Type.ADD: 'Create',
-                    ChangeRequest.Type.MODIFY: 'Update',
-                    ChangeRequest.Type.DELETE: 'Delete',
-                    ChangeRequest.Type.RELATED: 'Related objects update'}.get(self._cr.request_type)
-            if self._cr.status == ChangeRequest.Status.PENDING:
-                return '{} request for {} "{}" is pending moderator approval'.format(verb, self._cr.object_type,
-                                                                                     self._cr.object_str)
-            elif self._cr.object is None and self._cr.request_type == ChangeRequest.Type.DELETE:
-                return '{}d {} "{}"'.format(verb, self._cr.object_type, self._cr.object_str)
-            else:
-                return '{}d {} "{}"'.format(verb, self._cr.object_type, self._cr.object_str)
+    def add_message(self, level, verb, obj_type, obj_str):
+        self._messages.append({'level': level,
+                               'message': '{} {} "{}"'.format(verb, str(obj_type), str(obj_str))})
+
+    def add_message_pending(self):
+        self._messages.append({'level': messages.WARNING,
+                               'message': 'Change request for {} "{}" is pending moderator approval'.format(
+                                   str(self._cr.object_type), str(self._cr.object_str))})
+
+    def show_messages(self):
+        for msg in self._messages:
+            messages.add_message(self.request, msg['level'], msg['message'])
 
     class Meta:
         abstract = True

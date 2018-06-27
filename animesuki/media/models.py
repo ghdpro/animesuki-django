@@ -34,11 +34,13 @@ class Media(HistoryModel):
         MANGA = 7
         MANHUA = 8
         MANHWA = 9
-        ONE_SHOT = 10
-        DOUJIN = 11
+        WEB_MANGA = 10
+        ONE_SHOT = 11
+        DOUJIN = 12
         # Novel
-        LIGHT_NOVEL = 12
-        NOVEL = 13
+        LIGHT_NOVEL = 13
+        WEB_NOVEL = 14
+        NOVEL = 15
         choices = (
             (UNKNOWN, 'Unknown'),
             ('Anime', (
@@ -53,11 +55,13 @@ class Media(HistoryModel):
                 (MANGA, 'Manga'),
                 (MANHUA, 'Manhua'),
                 (MANHWA, 'Manhwa'),
+                (WEB_MANGA, 'Web Manga'),
                 (ONE_SHOT, 'One Shot'),
                 (DOUJIN, 'Doujin'),
             )),
             ('Novel', (
                 (LIGHT_NOVEL, 'Light Novel'),
+                (WEB_NOVEL, 'Web Novel'),
                 (NOVEL, 'Novel'),
             ))
         )

@@ -154,7 +154,7 @@ class ArtworkModel(models.Model):
     ARTWORK_SIZES = ((1000, 1000, '1000w'),)
 
     def __str__(self):
-        return Path(self.image.path).stem
+        return Path(self.image.path).name
 
     def sub_folder(self):
         # Child classes should override this function

@@ -17,7 +17,7 @@ class HistoryFormViewMixin:
     def form_valid(self, form):
         form.instance.comment = form.cleaned_data['comment']
         response = super().form_valid(form)
-        messages.success(self.request, form.instance.get_message())
+        form.instance.show_messages()
         return response
 
 
@@ -32,5 +32,7 @@ class HistoryFormsetViewMixin:
     @transaction.atomic
     def form_valid(self, form):
         # ModelFormMixin overwrites self.object with output of form.save(), which is bad because form is a formset here
-        form.save()
+        self.object.request = self.request
+        self.object.save_related(form)
+        self.object.show_messages()
         return HttpResponseRedirect(self.get_success_url())
