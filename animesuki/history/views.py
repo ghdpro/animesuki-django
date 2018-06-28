@@ -3,7 +3,8 @@
 from django.core.exceptions import ImproperlyConfigured
 from django.db import transaction
 from django.http import HttpResponseRedirect
-from django.contrib import messages
+
+from .forms import HistoryCommentForm
 
 
 class HistoryFormViewMixin:
@@ -24,6 +25,17 @@ class HistoryFormViewMixin:
 class HistoryFormsetViewMixin:
     formset_class = None
 
+    def get_comment_form(self):
+        if self.request.method in ('POST', 'PUT'):
+            return HistoryCommentForm(prefix=self.get_prefix(), data=self.request.POST, files=self.request.FILES)
+        else:
+            return HistoryCommentForm(prefix=self.get_prefix())
+
+    def get_context_data(self, **kwargs):
+        if 'comment_form' not in kwargs:
+            kwargs['comment_form'] = self.get_comment_form()
+        return super().get_context_data(**kwargs)
+
     def get_form(self, form_class=None):
         if self.formset_class is None:
             raise ImproperlyConfigured('HistoryFormsetViewMixin requires formset class to be specified')
@@ -32,7 +44,10 @@ class HistoryFormsetViewMixin:
     @transaction.atomic
     def form_valid(self, form):
         # ModelFormMixin overwrites self.object with output of form.save(), which is bad because form is a formset here
+        comment_form = self.get_comment_form()
+        comment_form.full_clean()
         self.object.request = self.request
+        self.object.comment = comment_form.cleaned_data['comment']
         self.object.save_related(form)
         self.object.show_messages()
         return HttpResponseRedirect(self.get_success_url())

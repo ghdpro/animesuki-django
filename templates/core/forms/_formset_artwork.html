@@ -34,6 +34,9 @@
                     <div class="col-sm-6"><label>{{ field.label }}</label></div>
                 {% endif %}
             {% endfor %}
+            {% for field in comment_form.visible_fields %}
+                <div class="col-sm-6"><label>{{ field.label }}</label></div>
+            {% endfor %}
         </div>
         <div class="form-row{% if forloop.last %} mb-3{% endif %}">
             {% for field in form.visible_fields %}
@@ -47,6 +50,16 @@
                         {% include 'core/forms/_field.html' with field=field hide_label=True only %}
                     </div>
                 {% endif %}
+            {% endfor %}
+            {% for field in comment_form.visible_fields %}
+                <div class="col-sm-6">
+                    {% if forloop.first %}
+                        {% for hidden in form.hidden_fields %}
+                            {{ hidden }}
+                        {% endfor %}
+                    {% endif %}
+                    {% include 'core/forms/_field.html' with field=field hide_label=True only %}
+                </div>
             {% endfor %}
         </div>
     {% endif %}

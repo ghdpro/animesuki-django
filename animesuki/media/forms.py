@@ -37,7 +37,6 @@ class MediaUpdateForm(MediaCreateForm):
 
 
 class MediaArtworkForm(forms.ModelForm):
-    comment = forms.CharField(label='Comment / Source', required=False)
 
     class Meta:
         model = MediaArtwork
