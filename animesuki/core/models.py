@@ -198,7 +198,7 @@ class ArtworkModel(models.Model):
                              format(result.returncode, result.stderr.decode('utf-8')))
 
     def delete(self, *args, **kwargs):
-        storage, path, width = self.image.storage, self.image.path, self.image.width
+        storage, path = self.image.storage, self.image.path
         super().delete(*args, **kwargs)
         # Delete original image
         try:

@@ -349,21 +349,23 @@ class HistoryModel(models.Model):
             # Approve immediately if right conditions are met
             self._cr.status = ChangeRequest.Status.APPROVED
         self._cr.save()
-        self.log()
         # Save actual model instance if: ChangeRequest object was saved -and- the request was self-approved
         # (ChangeRequest object will not have been saved if data was not altered)
-        if self._cr.pk and self._cr.status == ChangeRequest.Status.APPROVED:
-            super().save(*args, **kwargs)
-            self._cr.set_object(self)
-            self._cr.save()
-            # Generate message
-            verb = {ChangeRequest.Type.ADD: 'Added',
-                    ChangeRequest.Type.MODIFY: 'Updated'}  # DELETE or RELATED requests shouldn't be handled by save()
-            self.add_message(messages.SUCCESS, verb[self._cr.request_type], self._cr.object_type, self._cr.object_str)
-        if self._cr.status == ChangeRequest.Status.PENDING:
-            self.add_message_pending()
+        if self._cr.pk:
+            self.log()
+            if self._cr.status == ChangeRequest.Status.APPROVED:
+                super().save(*args, **kwargs)
+                self._cr.set_object(self)
+                self._cr.save()
+                # Generate message
+                verb = {ChangeRequest.Type.ADD: 'Added',
+                        ChangeRequest.Type.MODIFY: 'Updated'}  # DELETE or RELATED requests shouldn't be handled by save()
+                self.add_message(messages.SUCCESS, verb[self._cr.request_type], self._cr.object_type, self._cr.object_str)
+            elif self._cr.status == ChangeRequest.Status.PENDING:
+                self.add_message_pending()
         # Reset cached property
-        del self.has_pending
+        if hasattr(self, 'has_pending'):
+            delattr(self, 'has_pending')
 
     def save_related(self, formset):
         self._cr = self.create_changerequest(request_type=ChangeRequest.Type.RELATED)
@@ -374,28 +376,30 @@ class HistoryModel(models.Model):
             # Approve immediately if right conditions are met
             self._cr.status = ChangeRequest.Status.APPROVED
         self._cr.save()
-        self.log()
         # Save formset if: ChangeRequest object was saved -and- the request was self-approved
         # (ChangeRequest object will not have been saved if data was not altered)
-        if self._cr.pk and self._cr.status == ChangeRequest.Status.APPROVED:
-            formset.save()
-            # Generate message(s)
-            for obj in formset.new_objects:
-                self.add_message(messages.SUCCESS, 'Added', self._cr.related_type, obj)
-                self.log('Add', format_object_str(self._cr.related_type, obj, obj.pk))
-            for obj in formset.changed_objects:
-                self.add_message(messages.SUCCESS, 'Updated', self._cr.related_type, obj)
-                self.log('Modify', format_object_str(self._cr.related_type, obj, obj.pk))
-            for obj in formset.deleted_objects:
-                self.add_message(messages.SUCCESS, 'Deleted', self._cr.related_type, obj)
-                self.log('Delete', format_object_str(self._cr.related_type, obj, obj.pk))
-            # Refresh data_changed: any new instances should now have a pk set
-            self._cr.data_changed = formset_data_revert(formset)
-            self._cr.save()
-        elif self._cr.status == ChangeRequest.Status.PENDING:
-            self.add_message_pending()
+        if self._cr.pk:
+            self.log()
+            if self._cr.status == ChangeRequest.Status.APPROVED:
+                formset.save()
+                # Generate message(s)
+                for obj in formset.new_objects:
+                    self.add_message(messages.SUCCESS, 'Added', self._cr.related_type, obj)
+                    self.log('Add', format_object_str(self._cr.related_type, obj, obj.pk))
+                for obj in formset.changed_objects:
+                    self.add_message(messages.SUCCESS, 'Updated', self._cr.related_type, obj)
+                    self.log('Modify', format_object_str(self._cr.related_type, obj, obj.pk))
+                for obj in formset.deleted_objects:
+                    self.add_message(messages.SUCCESS, 'Deleted', self._cr.related_type, obj)
+                    self.log('Delete', format_object_str(self._cr.related_type, obj, obj.pk))
+                # Refresh data_changed: any new instances should now have a pk set
+                self._cr.data_changed = formset_data_revert(formset)
+                self._cr.save()
+            elif self._cr.status == ChangeRequest.Status.PENDING:
+                self.add_message_pending()
         # Reset cached property
-        del self.has_pending
+        if hasattr(self, 'has_pending'):
+            delattr(self, 'has_pending')
 
     def delete(self, *args, **kwargs):
         self._cr = self.create_changerequest(request_type=ChangeRequest.Type.DELETE)
@@ -411,7 +415,8 @@ class HistoryModel(models.Model):
             self.add_message_pending()
         self.log()
         # Reset cached property
-        del self.has_pending
+        if hasattr(self, 'has_pending'):
+            delattr(self, 'has_pending')
 
     def add_message(self, level, verb, obj_type, obj_str):
         self._messages.append({'level': level,

@@ -41,13 +41,13 @@ class HistoryFormsetViewMixin:
             raise ImproperlyConfigured('HistoryFormsetViewMixin requires formset class to be specified')
         return self.formset_class(**self.get_form_kwargs())
 
-    @transaction.atomic
     def form_valid(self, form):
         # ModelFormMixin overwrites self.object with output of form.save(), which is bad because form is a formset here
-        comment_form = self.get_comment_form()
-        comment_form.full_clean()
         self.object.request = self.request
-        self.object.comment = comment_form.cleaned_data['comment']
-        self.object.save_related(form)
-        self.object.show_messages()
+        comment_form = self.get_comment_form()
+        if comment_form.is_valid():
+            self.object.comment = comment_form.cleaned_data['comment']
+        with transaction.atomic():
+            self.object.save_related(form)
+            self.object.show_messages()
         return HttpResponseRedirect(self.get_success_url())

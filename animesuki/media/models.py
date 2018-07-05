@@ -108,6 +108,8 @@ class Media(HistoryModel):
     season = models.PositiveSmallIntegerField('season', choices=Season.choices, null=True, blank=True)
     description = models.TextField('description', blank=True)
     synopsis = models.TextField('synopsis', blank=True)
+    artwork = models.ForeignKey('MediaArtwork', related_name='media_artwork', on_delete=models.SET_NULL,
+                                null=True, blank=True, default=None)
 
     HISTORY_MODERATE_FIELDS = ('title', 'slug', 'media_type', 'sub_type', 'is_adult')
 
@@ -130,7 +132,7 @@ class Media(HistoryModel):
             },
         }
         status[self.Type.NOVEL] = status[self.Type.MANGA]
-        now = timezone.now()
+        now = timezone.now().date()
         if self.end_date and self.end_date <= now:
             return status[self.media_type]['past']
         elif not self.start_date or self.start_date > now:
