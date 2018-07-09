@@ -12,12 +12,15 @@
         <h1>{{ media.title }}</h1>
         {% if user.is_authenticated %}{% include 'media/_menu.html' with media=media only %}{% endif %}
     </div>
-{% with th_class='col-2 d-none d-sm-inline-block' td_class='col-10 d-inline-block' %}
-    <table class="table table-sm table-hover">
-    <tbody>
-    <tr class="d-flex">
-        <th class="{{ th_class }}">Type</th>
-        <td class="{{ td_class }}">{{ media.get_sub_type_display }}{% if media.is_adult %} (R-18){% endif %}{% spaceless %}
+    <div class="container"><div class="row">
+        <div class="col-md-4 order-md-12 pr-md-0">
+            <img src="{% call_method media.artwork 'get_image_url' '352w' %}" srcset="{% for size in media.artwork.get_image_sizes %}{% call_method media.artwork 'get_image_url' size %} {{ size }}{% if not forloop.last %}, {% endif %}{% endfor %}"  sizes="(max-width: 319px) 100vw, (max-width: 767px) 528px, (max-width: 1199px) 292px, 352px" class="img-fluid rounded" alt="{{ media.artwork }}" />
+        </div>
+        <div class="col-md-8 order-md-1 as-data">
+{% with r='row as-row py-1' h='col-lg-2 col-sm-3 pl-sm-2 font-weight-bold' d='col-lg-10 col-sm-9' %}
+    <div class="{{ r }}">
+        <div class="{{ h }}">Type</div>
+        <div class="{{ d }}">{{ media.get_sub_type_display }}{% if media.is_adult %} (R-18){% endif %}{% spaceless %}
             {% if media.media_type == media.Type.ANIME and media.sub_type != media.SubType.MOVIE or media.episodes > 1 %}
                 , {% if media.episodes is not None %}<span class="text-nowrap">{{ media.episodes }} episode{{ media.episodes|pluralize }}</span>{% else %}unknown number of episodes{% endif %}
             {% elif media.media_type != media.Type.ANIME and media.volumes > 1 %}
@@ -27,25 +30,25 @@
             {% elif media.media_type != media.Type.ANIME %}
                 , unknown number of chapters
             {% endif %}
-        {% endspaceless %}</td>
-    </tr>
-    <tr class="d-flex">
-        <th class="{{ th_class }}">Status</th>
-        <td class="{{ td_class }}">{{ media.get_status }}</td>
-    </tr>
+        {% endspaceless %}</div>
+    </div>
+    <div class="{{ r }}">
+        <div class="{{ h }}">Status</div>
+        <div class="{{ d }}">{{ media.get_status }}</div>
+    </div>
     {% if media.description %}
-    <tr class="d-flex">
-        <th class="{{ th_class }}">Description</th>
-        <td class="{{ td_class }}">{{ media.description }}</td>
-    </tr>
+    <div class="{{ r }}">
+        <div class="{{ h }}">Description</div>
+        <div class="{{ d }}">{{ media.description }}</div>
+    </div>
     {% endif %}
     {% if media.synopsis %}
-    <tr class="d-flex">
-        <th class="{{ th_class }}">Synopsis</th>
-        <td class="{{ td_class }}">{{ media.synopsis }}</td>
-    </tr>
+    <div class="{{ r }}">
+        <div class="{{ h }}">Synopsis</>
+        <div class="{{ d }}">{{ media.synopsis }}</div>
+    </div>
     {% endif %}
-    </tbody>
-    </table>
 {% endwith %}
+        </div>
+    </div></div>
 {% endblock content %}

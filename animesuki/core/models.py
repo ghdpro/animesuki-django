@@ -166,6 +166,13 @@ class ArtworkModel(models.Model):
     def get_image_url(self, size):
         return Path(Path(self.image.url).parent, Path(self.image.url).stem + '-' + str(size) + '.jpg')
 
+    def get_image_sizes(self):
+        result = []
+        for size in self.ARTWORK_SIZES:
+            if size[2][-1:].lower() == 'w':
+                result.append(size[2])
+        return result
+
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
         # The following operations are applied to the image file -every time- the model is saved (so do it only once!)

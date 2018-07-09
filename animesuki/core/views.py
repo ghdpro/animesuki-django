@@ -50,6 +50,6 @@ class ArtworkActiveViewMixin:
                 if self.object._cr.pk:
                     messages.success(self.request, 'Changed active artwork for "{}" to "{}"'
                                      .format(self.object, self.object.artwork))
-        except ObjectDoesNotExist:
+        except (ObjectDoesNotExist, IndexError):
             pass
         return result
