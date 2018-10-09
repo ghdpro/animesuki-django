@@ -16,8 +16,8 @@
         <div class="col-md-4 order-md-12 pr-md-0">
             <img src="{% call_method media.artwork 'get_image_url' '352w' %}" srcset="{% for size in media.artwork.get_image_sizes %}{% call_method media.artwork 'get_image_url' size %} {{ size }}{% if not forloop.last %}, {% endif %}{% endfor %}"  sizes="(max-width: 319px) 100vw, (max-width: 767px) 528px, (max-width: 1199px) 292px, 352px" class="img-fluid rounded" alt="{{ media.artwork }}" />
         </div>
-        <div class="col-md-8 order-md-1 as-data">
-{% with r='row as-row py-1' h='col-lg-2 col-sm-3 pl-sm-2 font-weight-bold' d='col-lg-10 col-sm-9' %}
+        <div class="col-md-8 order-md-1">
+{% with r='row py-1' h='col-lg-2 col-sm-3 pl-sm-2 font-weight-bold' d='col-lg-10 col-sm-9' %}
     <div class="{{ r }}">
         <div class="{{ h }}">Type</div>
         <div class="{{ d }}">{{ media.get_sub_type_display }}{% if media.is_adult %} (R-18){% endif %}{% spaceless %}
@@ -36,6 +36,27 @@
         <div class="{{ h }}">Status</div>
         <div class="{{ d }}">{{ media.get_status }}</div>
     </div>
+    <div class="{{ r }}">
+        <div class="{{ h }}">Vintage</div>
+        <div class="{{ d }}">
+            {% if media.start_date is not None %}<span class="text-nowrap">{{ media.start_date|date:'SHORT_DATE_FORMAT'|date_precision:media.start_precision }}</span>{% else %}?{% endif %}
+            {% if media.start_date != media.end_date %}
+                ~ {% if media.end_date is not None %}<span class="text-nowrap">{{ media.end_date|date:'SHORT_DATE_FORMAT'|date_precision:media.end_precision }}</span>{% else %}?{% endif %}
+            {% endif %}
+        </div>
+    </div>
+    {% if media.media_type == media.Type.ANIME and media.season_year %}
+    <div class="{{ r }}">
+        <div class="{{ h }}">Season</div>
+        <div class="{{ d }}">
+        {% if media.season %}
+            {{ media.get_season_display }} {{ media.season_year }}
+        {% else %}
+            {{ media.season_year }}
+        {% endif %}
+        </div>
+    </div>
+    {% endif %}
     {% if media.description %}
     <div class="{{ r }}">
         <div class="{{ h }}">Description</div>

@@ -12,7 +12,7 @@
     {% if form.instance.id %}
         <div class="as-card-col p-1">
             <div class="card text-center">
-                {% include 'core/artwork/_thumb.html' with object=form.instance x1='t225' x2='t450' css='img-fluid as-img-card rounded-top' only %}
+                {% include 'core/artwork/_thumb.html' with object=form.instance x1='t225' x2='t450' css='img-fluid card-img-top as-img-card' only %}
                 <div class="card-img-overlay py-0 px-2" title="Active">
                     <div class="form-check text-right">
                         <input type="radio" name="active" value="{{ form.instance.id }}" class="form-check-input position-static"{% if object.artwork.id == form.instance.id %} checked{% endif %} />

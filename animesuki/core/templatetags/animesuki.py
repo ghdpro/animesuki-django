@@ -4,6 +4,8 @@ from django import template
 
 register = template.Library()
 
+from ..utils import DatePrecision
+
 
 @register.filter
 def spacer(value):
@@ -67,3 +69,14 @@ def build_absolute_uri(request, obj, *args):
 def call_method(obj, func, *args, **kwargs):
     """Calls method from specified object with arguments"""
     return getattr(obj, func)(*args, **kwargs)
+
+
+@register.filter
+def date_precision(value, precision):
+    """Blanks out parts of the date based on specified precision"""
+    if precision == DatePrecision.YEAR:
+        return value[:5] + '??-??'
+    elif precision == DatePrecision.MONTH:
+        return value[:8] + '??'
+    # DatePrecision.FULL
+    return value

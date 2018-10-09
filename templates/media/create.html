@@ -4,7 +4,7 @@
 {% block head_title %}Create Media | AnimeSuki{% endblock head_title %}
 
 {% block content %}
-    {% block content_title %}<h1>Create Media</h1>{% endblock content_title %}
+    {% block content_title %}<h1><span class="text-muted">Create</span> Media</h1>{% endblock content_title %}
     <p>Leave unknown fields blank.</p>
     <form action="{% block form_url %}{% url 'media:create' 'media' %}{% endblock form_url %}" method="post">
         {% csrf_token %}

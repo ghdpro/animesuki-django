@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+{% load animesuki %}
+
+{% block head_title %}{{ changerequest.object_type|title }} History | AnimeSuki{% endblock head_title %}
+
+{% block meta %}
+{% endblock %}
+
+{% block content %}
+    <h1>{{ changerequest.object_type|title }} <span class="text-muted">History</span></h1>
+    <div class="container">
+{% with r='row py-1' h='col-lg-2 col-sm-3 pl-sm-2 font-weight-bold' d='col-lg-10 col-sm-9' %}
+    <div class="{{ r }}">
+        <div class="{{ h }}">Object</div>
+        <div class="{{ d }}">
+            {% if changerequest.object.get_absolute_url %}
+                <a href="{{ changerequest.object.get_absolute_url }}">{{ changerequest.object }}</a>
+            {% else %}
+                {{ changerequest.object_str }}
+            {% endif %}
+            <small>({{ changerequest.object_type|title }} #{{ changerequest.object_id }})</small>
+        </div>
+    </div>
+    <div class="{{ r }}">
+        <div class="{{ h }}">Action</div>
+        <div class="{{ d }}">{{ changerequest.get_request_type_display }}</div>
+    </div>
+    <div class="{{ r }}">
+        <div class="{{ h }}">Comment</div>
+        <div class="{{ d }}">{{ changerequest.comment|default:'-' }}</div>
+    </div>
+    <div class="{{ r }}">
+        <div class="{{ h }}">Action</div>
+        <div class="{{ d }}">{{ changerequest.user }} <small>({{ changerequest.date_created }})</small></div>
+    </div>
+{% endwith %}
+    </div>
+{% endblock content %}

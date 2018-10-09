@@ -3,8 +3,10 @@
 from django.core.exceptions import ImproperlyConfigured
 from django.db import transaction
 from django.http import HttpResponseRedirect
+from django.views.generic.detail import DetailView
 
 from .forms import HistoryCommentForm
+from .models import ChangeRequest
 
 
 class HistoryFormViewMixin:
@@ -51,3 +53,8 @@ class HistoryFormsetViewMixin:
             self.object.save_related(form)
             self.object.show_messages()
         return HttpResponseRedirect(self.get_success_url())
+
+
+class HistoryDetailView(DetailView):
+    template_name = 'history/detail.html'
+    model = ChangeRequest

@@ -61,14 +61,6 @@ footer.container, footer.container a:link, footer.container a:active, footer.con
     font-weight: bold;
 }
 
-.as-data .row:not(:first-child ){
-    border-top: solid 1px rgba(0, 0, 0, 0.1);
-}
-
-.as-row:hover {
-    background-color: rgba(0, 0, 0, 0.075);
-}
-
 .as-card-container {
     margin: -0.25rem -0.25rem 0 -0.25rem;
 }
