@@ -1,6 +1,7 @@
-Django[argon2]==2.1.2
-django-debug-toolbar==1.10.1
-django-allauth==0.37.1
-psycopg2-binary==2.7.5
-coverage==4.5.1
+Django[argon2]==2.1.7
+django-debug-toolbar==1.11
+django-allauth==0.38.0
+psycopg2-binary==2.7.7
+Pillow==5.4.1
+coverage==4.5.2
 fabric==2.4.0

@@ -16,7 +16,7 @@
                 <div class="input-group input-group-sm">
                     <input class="form-control" type="search" placeholder="Search" aria-label="Search">
                     <div class="input-group-append">
-                        <button class="btn btn-outline-light" type="submit"><span class="fa fa-search"></span></button>
+                        <button class="btn btn-outline-light" type="submit"><span class="fas fa-search"></span></button>
                     </div>
                 </div>
             </form>
@@ -28,10 +28,10 @@
                     <div class="dropdown-menu dropdown-menu-right">
                         {% if request.user.is_authenticated %}
                             <span class="dropdown-header">{{ request.user.username }}</span>
-                            <a class="dropdown-item" href="{% url 'account_logout' %}"><i class="fa fa-sign-out fa-fw"></i> Logout</a>
+                            <a class="dropdown-item" href="{% url 'account_logout' %}"><i class="fas fa-sign-out-alt fa-fw"></i> Logout</a>
                         {% else %}
-                            <a class="dropdown-item" href="{% url 'account_login' %}"><i class="fa fa-sign-in fa-fw"></i> Login</a>
-                            <a class="dropdown-item" href="{% url 'account_signup' %}"><i class="fa fa-user-plus fa-fw"></i> Sign Up</a>
+                            <a class="dropdown-item" href="{% url 'account_login' %}"><i class="fas fa-sign-in-alt fa-fw"></i> Login</a>
+                            <a class="dropdown-item" href="{% url 'account_signup' %}"><i class="fas fa-user-plus fa-fw"></i> Sign Up</a>
                         {% endif %}
                     </div>
                 </li>
