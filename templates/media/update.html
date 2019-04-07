@@ -1,5 +1,5 @@
 {% extends 'media/create.html' %}
-{% load animesuki %}
+{% load animesuki history %}
 
 {% block head_title %}Edit {{ media.title }} | {{ media.get_media_type_display }} | AnimeSuki{% endblock head_title %}
 
@@ -13,3 +13,8 @@
 {% block form_url %}{% get_absolute_url media 'media:update' %}{% endblock form_url %}
 
 {% block form_buttons %}<a href="{{ media.get_absolute_url }}" class="btn btn-outline-secondary ml-2"><i class="fas fa-undo fa-fw"></i> Back</a>{% endblock form_buttons %}
+
+{% block content %}
+    {{ block.super }}
+    {% history_list media %}
+{% endblock content %}

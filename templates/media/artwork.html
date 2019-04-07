@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% load animesuki %}
+{% load animesuki history %}
 
 {% block head_title %}{{ media.title }} Artwork | {{ media.get_media_type_display }} | AnimeSuki{% endblock head_title %}
 
@@ -19,4 +19,5 @@
             </div>
         </div>
     </form>
+    {% history_list_related media form.model %}
 {% endblock content %}

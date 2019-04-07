@@ -1,7 +1,7 @@
-Django[argon2]==2.1.7
+Django[argon2]==2.2
 django-debug-toolbar==1.11
-django-allauth==0.38.0
+django-allauth==0.39.1
 psycopg2-binary==2.7.7
-Pillow==5.4.1
-coverage==4.5.2
+Pillow==6.0.0
+coverage==4.5.3
 fabric==2.4.0

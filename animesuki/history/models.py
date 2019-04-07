@@ -8,8 +8,9 @@ from django.core.exceptions import ValidationError
 from django.core.serializers.json import DjangoJSONEncoder
 from django.db import models
 from django.db.models.fields.related import ManyToManyField
-from django.db.models import FileField
+from django.db.models import Field, FileField
 from django.forms.models import model_to_dict
+from django.urls import reverse
 from django.utils import timezone
 from django.utils.functional import cached_property
 from django.contrib.contenttypes.fields import GenericForeignKey
@@ -175,6 +176,73 @@ class ChangeRequest(models.Model):
         # Prevent duplicates: when modifying existing entries, do not save if data_revert equals data_changed
         if (self.request_type not in (self.Type.MODIFY, self.Type.RELATED)) or (self.data_revert != self.data_changed):
             super().save(*args, **kwargs)
+
+    def diff(self):
+        def order(data):
+            r = dict()
+            for field in self.object_type.model_class()._meta.get_fields():
+                if field.name in data:
+                    r[field.verbose_name] = data[field.name]
+            return r
+        # ADD
+        if self.data_revert is None:
+            return order(self.data_changed)
+        # DELETE
+        if self.data_changed is None:
+            return order(self.data_revert)
+        # MODIFY
+        result = dict()
+        for k, v in self.data_changed.items():
+            if k not in self.data_revert or self.data_revert[k] != v:
+                result[k] = v
+        return order(result)
+
+    def diff_related(self):
+        result = dict()
+        # Fields
+        result['pk'] = pk = self.related_type.model_class()._meta.pk.name
+        result['fields'] = []
+        for field in self.related_type.model_class()._meta.get_fields():
+            # ManyToManyField are not supported
+            if isinstance(field, Field) and not isinstance(field, ManyToManyField):
+                result['fields'].append(field.verbose_name)
+        # Get list of old Primary Key values in data_revert; used to check for new rows
+        pks_revert = []
+        if self.data_revert is not None:
+            for item in self.data_revert:
+                if pk in item and item[pk]:
+                    pks_revert.append(item[pk])
+        # Build list of added rows and dictionary for data_changed; used for comparison against data_revert
+        result['added'] = []
+        changed = dict()
+        if self.data_changed is not None:
+            for item in self.data_changed:
+                # Check if Primary Key is set and in pks_revert
+                if pk in item and item[pk] and item[pk] in pks_revert:
+                    # Existing row
+                    changed[item[pk]] = item
+                else:
+                    # New row
+                    result['added'].append(item)
+        # Build list of existing, modified and deleted rows
+        result['existing'] = []
+        result['modified'] = dict()
+        result['deleted'] = []
+        if self.data_revert is not None:
+            for item in self.data_revert:
+                row = item
+                if item[pk] in changed:
+                    diff = changed_keys(item, changed[item[pk]])
+                    if len(diff) > 0:
+                        result['modified'][item[pk]] = diff
+                        row = changed[item[pk]]
+                else:
+                    result['deleted'].append(item[pk])
+                result['existing'].append(row)
+        return result
+
+    def get_absolute_url(self, view='history:detail'):
+        return reverse(view, args=[self.pk])
 
     class Meta:
         db_table = 'history'

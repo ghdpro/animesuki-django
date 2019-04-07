@@ -4,6 +4,7 @@
 {% block head_title %}{{ changerequest.object_type|title }} History | AnimeSuki{% endblock head_title %}
 
 {% block meta %}
+    <meta name="robots" content="noindex, nofollow">
 {% endblock %}
 
 {% block content %}
@@ -23,16 +24,99 @@
     </div>
     <div class="{{ r }}">
         <div class="{{ h }}">Action</div>
-        <div class="{{ d }}">{{ changerequest.get_request_type_display }}</div>
+        <div class="{{ d }}">{{ changerequest.get_request_type_display }}{% if changerequest.request_type == changerequest.Type.RELATED %} - <strong>{{ changerequest.related_type|title }}</strong>{% endif %}</div>
+    </div>
+    <div class="{{ r }}">
+        <div class="{{ h }}">Status</div>
+        <div class="{{ d }}">{{ changerequest.get_status_display }}</div>
+    </div>
+    <div class="{{ r }}">
+        <div class="{{ h }}">Changes</div>
+        <div class="{{ d }}">
+            <div class="table-responsive">
+            <table class="table table-sm">
+            {% if changerequest.request_type == changerequest.Type.RELATED %}
+                {% with diff=changerequest.diff_related %}
+                <thead>
+                    <tr>
+                    {% for field in diff.fields %}
+                        <th>{{ field }}</th>
+                    {% endfor %}
+                    </tr>
+                </thead>
+                <tbody>
+                {% for item in diff.existing %}
+                    {% with pk=item|getitem:diff.pk %}
+                    <tr{% if pk in diff.deleted %} class="table-danger alert-danger"{% endif %}>
+                    {% for key, value in item.items %}
+                        {% if key == diff.pk %}<th>{% else %}<td>{% endif %}
+                    {% if key in diff.modified|getitem:pk and pk not in diff.deleted %}<span class="alert-success px-1">{{ value }}</span>{% else %}{{ value }}{% endif %}
+                        {% if key == diff.pk %}</th>{% else %}</td>{% endif %}
+                    {% endfor %}
+                    </tr>
+                    {% endwith %}
+                {% endfor %}
+                {% for item in diff.added %}
+                    <tr class="table-success alert-success">
+                    {% for key, value in item.items %}
+                        {% if key == diff.pk %}<th>{% else %}<td>{% endif %}
+                        {{ value }}
+                        {% if key == diff.pk %}</th>{% else %}</td>{% endif %}
+                    {% endfor %}
+                    </tr>
+                {% endfor %}
+                </tbody>
+                {% endwith %}
+            {% else %}
+                <thead>
+                    <tr>
+                        <th>Field</th>
+                        <th>Old</th>
+                        <th>New</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for key, value in changerequest.diff.items %}
+                    <tr>
+                        <th>{{ key|title }}</th>
+                        {% if changerequest.request_type == changerequest.Type.ADD %}
+                            <td><span class="text-danger">-</span></td>
+                            <td>{% if value %}<span class="alert-success px-1">{{ value|linebreaksbr }}</span>{% else %}<span class="text-success">-</span>{% endif %}</td>
+                        {% elif changerequest.request_type == changerequest.Type.MODIFY %}
+                            <td>
+                                {% if changerequest.data_revert|getitem:key %}
+                                    <span class="alert-danger px-1">{{ changerequest.data_revert|getitem:key|linebreaksbr }}</span>
+                                {% else %}
+                                    <span class="text-danger">-</span>
+                                {% endif %}
+                            </td>
+                            <td>{% if value %}<span class="alert-success px-1">{{ value|linebreaksbr }}</span>{% else %}<span class="text-success">-</span>{% endif %}</td>
+                        {% elif changerequest.request_type == changerequest.Type.DELETE %}
+                            <td>{% if value %}<span class="alert-danger px-1">{{ value }}</span>{% else %}<span class="text-danger">-</span>{% endif %}</td>
+                            <td><span class="text-success">-</span></td>
+                        {% endif %}
+                    </tr>
+                {% endfor %}
+                </tbody>
+            {% endif %}
+            </table>
+            </div>
+        </div>
     </div>
     <div class="{{ r }}">
         <div class="{{ h }}">Comment</div>
         <div class="{{ d }}">{{ changerequest.comment|default:'-' }}</div>
     </div>
     <div class="{{ r }}">
-        <div class="{{ h }}">Action</div>
+        <div class="{{ h }}">User</div>
         <div class="{{ d }}">{{ changerequest.user }} <small>({{ changerequest.date_created }})</small></div>
     </div>
+    {% if changerequest.mod is not None %}
+    <div class="{{ r }}">
+        <div class="{{ h }}">Mod</div>
+        <div class="{{ d }}">{{ changerequest.mod }} <small>({{ changerequest.date_modified }})</small></div>
+    </div>
+    {% endif %}
 {% endwith %}
     </div>
 {% endblock content %}
