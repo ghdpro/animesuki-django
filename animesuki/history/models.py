@@ -225,7 +225,7 @@ class ChangeRequest(models.Model):
                     # New row
                     result['added'].append(item)
         # Build list of existing, modified and deleted rows
-        result['existing'] = []
+        result['existing'] = dict()
         result['modified'] = dict()
         result['deleted'] = []
         if self.data_revert is not None:
@@ -238,7 +238,7 @@ class ChangeRequest(models.Model):
                         row = changed[item[pk]]
                 else:
                     result['deleted'].append(item[pk])
-                result['existing'].append(row)
+                result['existing'][item[pk]] = row
         return result
 
     def get_absolute_url(self, view='history:detail'):

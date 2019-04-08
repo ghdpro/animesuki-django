@@ -1,11 +1,11 @@
 <h2>History</h2>
 <div class="table-responsive">
-    <table class="table table-sm">
+    <table class="table table-sm table-hover">
         <thead>
             <tr>
-                <th>Date</th>
-                <th>Action</th>
-                <th>Status</th>
+                <th class="text-center">Date</th>
+                <th class="text-center">Action</th>
+                <th class="text-center">Status</th>
                 <th>Changes</th>
                 <th>User</th>
                 <th></th>
@@ -14,18 +14,39 @@
         <tbody>
         {% for cr in history %}
             <tr>
-            <td class="text-nowrap">{{ cr.date|date:'SHORT_DATETIME_FORMAT' }}</td>
-            <td>{{ cr.request_type }}</td>
-            <td>{{ cr.status }}</td>
-            <td class="w-100">
-            {% for field, value in cr.fields.items %}
-                {{ field|title }}{% if cr.related %}: {{ value }}{% endif %}{% if not forloop.last %}, {% endif %}
-            {% empty %}
-                -
-            {% endfor %}
-            </td>
-            <td class="text-nowrap">{{ cr.user.username }}</td>
-            <td><a class="btn btn-outline-secondary btn-sm py-0" href="{{ cr.url }}">View</a></td>
+                <td class="text-nowrap text-center"><small>{{ cr.date|date:'SHORT_DATETIME_FORMAT' }}</small></td>
+                <td class="text-center"><span class="badge {% if cr.request_type == 1 %}badge-success{% elif cr.request_type == 2 %}badge-info{% elif cr.request_type == 3 %}badge-danger{% else %}badge-secondary{% endif %}">{{ cr.request_type_display }}</span></td>
+                <td class="text-center"><span class="badge {% if cr.status == 1 %}badge-info{% elif cr.status == 2 %}badge-success{% elif cr.status == 3 %}badge-danger{% else %}badge-secondary{% endif %}">{{ cr.status_display }}</span></td>
+                <td class="w-100">
+                {% if cr.related %}
+                    {% if cr.added|length > 0 %}
+                        <small class="text-success">Add:</small>
+                        {% for item in cr.added %}
+                            {{ item }}{% if not forloop.last %}, {% endif %}
+                        {% endfor %}
+                    {% endif %}
+                    {% if cr.modified|length > 0 %}
+                        <small class="text-info">Modify:</small>
+                        {% for item in cr.modified %}
+                            {{ item }}{% if not forloop.last %}, {% endif %}
+                        {% endfor %}
+                    {% endif %}
+                    {% if cr.deleted|length > 0 %}
+                        <small class="text-danger">Delete:</small>
+                        {% for item in cr.deleted %}
+                            {{ item }}{% if not forloop.last %}, {% endif %}
+                        {% endfor %}
+                    {% endif %}
+                {% else %}
+                    {% for field, value in cr.fields.items %}
+                        {{ field|title }}{% if not forloop.last %}, {% endif %}
+                    {% empty %}
+                        -
+                    {% endfor %}
+                {% endif %}
+                </td>
+                <td class="text-nowrap">{{ cr.user.username }}</td>
+                <td><a class="btn btn-outline-secondary btn-sm py-0" href="{{ cr.url }}">View</a></td>
             </tr>
         {% empty %}
             <tr><td class="font-italic text-center" colspan="8">None</td></tr>

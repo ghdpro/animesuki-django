@@ -24,11 +24,15 @@
     </div>
     <div class="{{ r }}">
         <div class="{{ h }}">Action</div>
-        <div class="{{ d }}">{{ changerequest.get_request_type_display }}{% if changerequest.request_type == changerequest.Type.RELATED %} - <strong>{{ changerequest.related_type|title }}</strong>{% endif %}</div>
+        <div class="{{ d }}">
+            <span class="badge {% if changerequest.request_type == 1 %}badge-success{% elif changerequest.request_type == 2 %}badge-info{% elif changerequest.request_type == 3 %}badge-danger{% else %}badge-secondary{% endif %}">{{ changerequest.get_request_type_display }}</span>
+            {% if changerequest.request_type == changerequest.Type.RELATED %} <strong>{{ changerequest.related_type|title }}</strong>{% endif %}</div>
     </div>
     <div class="{{ r }}">
         <div class="{{ h }}">Status</div>
-        <div class="{{ d }}">{{ changerequest.get_status_display }}</div>
+        <div class="{{ d }}">
+            <span class="badge {% if changerequest.status == 1 %}badge-info{% elif changerequest.status == 2 %}badge-success{% elif changerequest.status == 3 %}badge-danger{% else %}badge-secondary{% endif %}">{{ changerequest.get_status_display }}</span>
+        </div>
     </div>
     <div class="{{ r }}">
         <div class="{{ h }}">Changes</div>
@@ -45,7 +49,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                {% for item in diff.existing %}
+                {% for key, item in diff.existing.items %}
                     {% with pk=item|getitem:diff.pk %}
                     <tr{% if pk in diff.deleted %} class="table-danger alert-danger"{% endif %}>
                     {% for key, value in item.items %}

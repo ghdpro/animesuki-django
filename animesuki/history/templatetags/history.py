@@ -21,8 +21,10 @@ def history_list(obj):
             row['date'] = cr.date_modified
         else:
             row['date'] = cr.date_created
-        row['request_type'] = cr.get_request_type_display()
-        row['status'] = cr.get_status_display()
+        row['request_type'] = cr.request_type
+        row['request_type_display'] = cr.get_request_type_display()
+        row['status'] = cr.status
+        row['status_display'] = cr.get_status_display()
         if cr.request_type != ChangeRequest.Type.ADD:
             row['fields'] = cr.diff()
         else:
@@ -47,16 +49,20 @@ def history_list_related(obj, related):
             row['date'] = cr.date_modified
         else:
             row['date'] = cr.date_created
-        row['request_type'] = cr.get_request_type_display()
-        row['status'] = cr.get_status_display()
-        row['fields'] = dict()
+        row['request_type'] = cr.request_type
+        row['request_type_display'] = cr.get_request_type_display()
+        row['status'] = cr.status
+        row['status_display'] = cr.get_status_display()
+        row['added'] = []
+        row['modified'] = []
+        row['deleted'] = []
         diff = cr.diff_related()
-        if len(diff['added']) > 0:
-            row['fields']['added'] = len(diff['added'])
-        if len(diff['modified']) > 0:
-            row['fields']['modified'] = len(diff['modified'])
-        if len(diff['deleted']) > 0:
-            row['fields']['deleted'] = len(diff['deleted'])
+        for item in diff['added']:
+            row['added'].append(related.to_str(item))
+        for pk, value in diff['modified'].items():
+            row['modified'].append(related.to_str(diff['existing'][pk]))
+        for pk in diff['deleted']:
+            row['deleted'].append(related.to_str(diff['existing'][pk]))
         row['user'] = cr.user
         row['mod'] = cr.mod
         row['url'] = cr.get_absolute_url()

@@ -156,6 +156,10 @@ class ArtworkModel(models.Model):
     def __str__(self):
         return Path(self.image.path).name
 
+    @staticmethod
+    def to_str(fields):
+        return Path(fields['image']).name
+
     def sub_folder(self):
         # Child classes should override this function
         return None
