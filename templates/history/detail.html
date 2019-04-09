@@ -113,12 +113,12 @@
     </div>
     <div class="{{ r }}">
         <div class="{{ h }}">User</div>
-        <div class="{{ d }}">{{ changerequest.user }} <small>({{ changerequest.date_created }})</small></div>
+        <div class="{{ d }}"><img src="{{ changerequest.user.get_gravatar_url }}" width="22" height="22" class="rounded" alt="{{ cr.user.username }}"> {{ changerequest.user.username }} <small>({{ changerequest.date_created }})</small></div>
     </div>
     {% if changerequest.mod is not None %}
     <div class="{{ r }}">
         <div class="{{ h }}">Mod</div>
-        <div class="{{ d }}">{{ changerequest.mod }} <small>({{ changerequest.date_modified }})</small></div>
+        <div class="{{ d }}"><img src="{{ changerequest.mod.get_gravatar_url }}" width="22" height="22" class="rounded" alt="{{ cr.mod.username }}"> {{ changerequest.mod.username }} <small>({{ changerequest.date_modified }})</small></div>
     </div>
     {% endif %}
 {% endwith %}

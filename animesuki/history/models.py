@@ -141,6 +141,8 @@ class ChangeRequest(models.Model):
     date_created = models.DateTimeField(auto_now_add=True, blank=True)
     date_modified = models.DateTimeField(auto_now=True, blank=True)
 
+    _class_cache = dict()
+
     def __str__(self):
         return format_object_str(self.object_type, self.object_str, self.object_id)
 
@@ -178,12 +180,14 @@ class ChangeRequest(models.Model):
             super().save(*args, **kwargs)
 
     def diff(self):
+        if self.object_type_id not in self._class_cache:
+            self._class_cache[self.object_type_id] = self.object_type.model_class()
         def order(data):
             r = dict()
-            for field in self.object_type.model_class()._meta.get_fields():
+            for field in self._class_cache[self.object_type_id]._meta.get_fields():
                 if field.name in data:
                     r[field.verbose_name] = data[field.name]
-            return r
+            return data
         # ADD
         if self.data_revert is None:
             return order(self.data_changed)
@@ -198,11 +202,14 @@ class ChangeRequest(models.Model):
         return order(result)
 
     def diff_related(self):
+        if self.related_type_id not in self._class_cache:
+            self._class_cache[self.related_type_id] = self.related_type.model_class()
         result = dict()
+        # Primary Key
+        result['pk'] = pk = self._class_cache[self.related_type_id]._meta.pk.name
         # Fields
-        result['pk'] = pk = self.related_type.model_class()._meta.pk.name
         result['fields'] = []
-        for field in self.related_type.model_class()._meta.get_fields():
+        for field in self._class_cache[self.related_type_id]._meta.get_fields():
             # ManyToManyField are not supported
             if isinstance(field, Field) and not isinstance(field, ManyToManyField):
                 result['fields'].append(field.verbose_name)
@@ -214,6 +221,7 @@ class ChangeRequest(models.Model):
                     pks_revert.append(item[pk])
         # Build list of added rows and dictionary for data_changed; used for comparison against data_revert
         result['added'] = []
+        result['added_str'] = []
         changed = dict()
         if self.data_changed is not None:
             for item in self.data_changed:
@@ -224,10 +232,13 @@ class ChangeRequest(models.Model):
                 else:
                     # New row
                     result['added'].append(item)
+                    result['added_str'].append(self._class_cache[self.related_type_id].to_str(item))
         # Build list of existing, modified and deleted rows
         result['existing'] = dict()
         result['modified'] = dict()
+        result['modified_str'] = []
         result['deleted'] = []
+        result['deleted_str'] = []
         if self.data_revert is not None:
             for item in self.data_revert:
                 row = item
@@ -235,9 +246,11 @@ class ChangeRequest(models.Model):
                     diff = changed_keys(item, changed[item[pk]])
                     if len(diff) > 0:
                         result['modified'][item[pk]] = diff
+                        result['modified_str'].append(self._class_cache[self.related_type_id].to_str(changed[item[pk]]))
                         row = changed[item[pk]]
                 else:
                     result['deleted'].append(item[pk])
+                    result['deleted_str'].append(self._class_cache[self.related_type_id].to_str(item))
                 result['existing'][item[pk]] = row
         return result
 
