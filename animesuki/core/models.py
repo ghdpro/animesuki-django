@@ -195,7 +195,7 @@ class ArtworkModel(models.Model):
         for size in self.ARTWORK_SIZES:
             file = self.get_image_path(size[2])
             cmd = ['convert', self.image.path+'[0]', '-colorspace', 'Lab', '-filter', 'Lanczos',
-                   '-thumbnail', '{}x{}>'.format(size[0], size[1]), '-colorspace', 'sRGB', '-strip']
+                   '-thumbnail', '{}x{}'.format(size[0], size[1]), '-colorspace', 'sRGB', '-strip']
             if size[0] > 200:
                 cmd.extend(['-quality', str(self.ARTWORK_JPEG_QUALITY)])
             else:

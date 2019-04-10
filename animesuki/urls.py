@@ -13,10 +13,10 @@ from animesuki.history.views import (HistoryDetailView, HistoryListView)
 
 
 media_patterns = ([
+    path('<int:pk>/<slug:slug>', MediaDetailView.as_view(), name='detail'),
+    path('<int:pk>/<slug:slug>/edit', MediaUpdateView.as_view(), name='update'),
+    path('<int:pk>/<slug:slug>/artwork', MediaArtworkView.as_view(), name='artwork'),
     path('create', MediaCreateView.as_view(), name='create'),
-    path('<slug:slug>', MediaDetailView.as_view(), name='detail'),
-    path('<slug:slug>/edit', MediaUpdateView.as_view(), name='update'),
-    path('<slug:slug>/artwork', MediaArtworkView.as_view(), name='artwork'),
 ], 'media')
 
 history_patterns = ([

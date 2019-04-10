@@ -3,14 +3,14 @@
 from django.views.generic import DetailView, CreateView, UpdateView
 from django.contrib.auth.mixins import LoginRequiredMixin
 
-from animesuki.core.views import AnimeSukiPermissionMixin, ArtworkActiveViewMixin
+from animesuki.core.views import AnimeSukiPermissionMixin, ArtworkActiveViewMixin, CanonicalDetailViewMixin
 from animesuki.history.views import HistoryFormViewMixin, HistoryFormsetViewMixin
 
 from .models import Media
 from .forms import MediaCreateForm, MediaUpdateForm, MediaArtworkForm, MediaArtworkFormset
 
 
-class MediaDetailView(DetailView):
+class MediaDetailView(CanonicalDetailViewMixin, DetailView):
     template_name = 'media/detail.html'
     model = Media
 

@@ -8,6 +8,7 @@ from django.http import HttpResponseRedirect
 from django.urls import reverse
 from django.views.generic.detail import DetailView
 from django.views.generic.list import ListView
+from django.contrib.auth.mixins import LoginRequiredMixin
 
 from animesuki.core.views import ListViewQueryStringMixin
 
@@ -61,12 +62,12 @@ class HistoryFormsetViewMixin:
         return HttpResponseRedirect(self.get_success_url())
 
 
-class HistoryDetailView(DetailView):
+class HistoryDetailView(LoginRequiredMixin, DetailView):
     template_name = 'history/detail.html'
     model = ChangeRequest
 
 
-class HistoryListView(ListViewQueryStringMixin, ListView):
+class HistoryListView(LoginRequiredMixin, ListViewQueryStringMixin, ListView):
     template_name = 'history/list.html'
     model = ChangeRequest
     paginate_by = 25

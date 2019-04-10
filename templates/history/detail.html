@@ -44,7 +44,7 @@
                 <thead>
                     <tr>
                     {% for field in diff.fields %}
-                        <th>{{ field }}</th>
+                        <th>{{ field|capfirst }}</th>
                     {% endfor %}
                     </tr>
                 </thead>

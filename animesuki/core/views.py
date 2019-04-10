@@ -1,6 +1,7 @@
 """AnimeSuki Core views"""
 
 from django.core.exceptions import ObjectDoesNotExist
+from django.http import HttpResponsePermanentRedirect
 from django.utils.http import urlencode
 from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.contrib import messages
@@ -54,6 +55,18 @@ class ArtworkActiveViewMixin:
         except (ObjectDoesNotExist, IndexError):
             pass
         return result
+
+
+class CanonicalDetailViewMixin:
+
+    def get(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        # Redirect to canonical URL if request URL is not the canonical URL
+        obj_url = self.object.get_absolute_url()
+        if self.request.path != obj_url:
+            return HttpResponsePermanentRedirect(obj_url)
+        context = self.get_context_data(object=self.object)
+        return self.render_to_response(context)
 
 
 class ListViewQueryStringMixin:

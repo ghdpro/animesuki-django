@@ -89,7 +89,6 @@ class Media(HistoryModel):
         )
 
     title = models.CharField('title', max_length=250, blank=True)
-    slug = models.SlugField('slug', max_length=250, allow_unicode=True)
     media_type = models.PositiveSmallIntegerField('type', choices=Type.choices, default=Type.ANIME)
     sub_type = models.PositiveSmallIntegerField('sub Type', choices=SubType.choices, default=SubType.UNKNOWN)
     status = models.PositiveSmallIntegerField('status', choices=Status.choices, default=Status.AUTO)
@@ -141,12 +140,11 @@ class Media(HistoryModel):
             return status[self.media_type]['present']
 
     def get_absolute_url(self, view='media:detail'):
-        return reverse(view, args=[slugify(self.get_media_type_display()), self.slug])
+        return reverse(view, args=[slugify(self.get_media_type_display()), self.pk, slugify(self.title)])
 
     class Meta:
         db_table = 'media'
         verbose_name_plural = 'media'
-        unique_together = ('slug', 'media_type')
 
 
 class MediaArtwork(ArtworkModel):
@@ -158,7 +156,7 @@ class MediaArtwork(ArtworkModel):
                      (528, 1200, '528w'), (584, 1200, '584w'), (704, 1400, '704w'))
 
     def sub_folder(self):
-        return self.media.slug
+        return self.media.pk
 
     class Meta:
         db_table = 'media_artwork'
