@@ -9,7 +9,7 @@ from django.contrib import admin
 from allauth.account import views as account
 
 from animesuki.media.views import (MediaDetailView, MediaCreateView, MediaUpdateView, MediaArtworkView)
-from animesuki.history.views import (HistoryDetailView)
+from animesuki.history.views import (HistoryDetailView, HistoryListView)
 
 
 media_patterns = ([
@@ -21,6 +21,7 @@ media_patterns = ([
 
 history_patterns = ([
     path('<int:pk>', HistoryDetailView.as_view(), name='detail'),
+    path('browse', HistoryListView.as_view(), name='browse'),
 ], 'history')
 
 account_patterns = [

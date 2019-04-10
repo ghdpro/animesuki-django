@@ -119,6 +119,7 @@ class ChangeRequest(models.Model):
             (DENIED, 'Denied'),
             (WITHDRAWN, 'Withdrawn'),
         )
+        lookup = dict((v[1].lower(), v[0]) for k, v in enumerate(choices))
 
     # ChangeRequest does not support non-integer primary keys
     # Change to TextField() to support all types (at performance cost)

@@ -25,13 +25,13 @@
     <div class="{{ r }}">
         <div class="{{ h }}">Action</div>
         <div class="{{ d }}">
-            <span class="badge {% if changerequest.request_type == 1 %}badge-success{% elif changerequest.request_type == 2 %}badge-info{% elif changerequest.request_type == 3 %}badge-danger{% else %}badge-secondary{% endif %}">{{ changerequest.get_request_type_display }}</span>
+            <span class="badge {% if changerequest.request_type == changerequest.Type.ADD %}badge-success{% elif changerequest.request_type == changerequest.Type.MODIFY %}badge-info{% elif changerequest.request_type == changerequest.Type.DELETE %}badge-danger{% else %}badge-secondary{% endif %}">{{ changerequest.get_request_type_display }}</span>
             {% if changerequest.request_type == changerequest.Type.RELATED %} <strong>{{ changerequest.related_type|title }}</strong>{% endif %}</div>
     </div>
     <div class="{{ r }}">
         <div class="{{ h }}">Status</div>
         <div class="{{ d }}">
-            <span class="badge {% if changerequest.status == 1 %}badge-info{% elif changerequest.status == 2 %}badge-success{% elif changerequest.status == 3 %}badge-danger{% else %}badge-secondary{% endif %}">{{ changerequest.get_status_display }}</span>
+            <span class="badge {% if changerequest.status == changerequest.Status.PENDING %}badge-info{% elif changerequest.status == changerequest.Status.APPROVED %}badge-success{% elif changerequest.status == changerequest.Status.DENIED %}badge-danger{% else %}badge-secondary{% endif %}">{{ changerequest.get_status_display }}</span>
         </div>
     </div>
     <div class="{{ r }}">

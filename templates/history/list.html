@@ -1,0 +1,93 @@
+{% extends 'base.html' %}
+{% load animesuki %}
+
+{% block head_title %}Browse History | AnimeSuki{% endblock head_title %}
+
+{% block meta %}
+    <meta name="robots" content="noindex, nofollow">
+{% endblock %}
+
+{% block content %}
+    <div class="d-flex flex-wrap">
+        <h1><span class="text-muted">Browse</span> History</h1>
+        <div class="btn-group align-self-center ml-auto">
+            <a href="{{ view.get_url }}{% call_method view 'get_querystring' status='all' %}" class="btn btn{% if status != 'all' %}-outline{% endif %}-primary btn-sm">All</a>
+            <a href="{{ view.get_url }}{% call_method view 'get_querystring' status='pending' %}" class="btn btn{% if status != 'pending' %}-outline{% endif %}-info btn-sm">Pending</a>
+            <a href="{{ view.get_url }}{% call_method view 'get_querystring' status='approved' %}" class="btn btn{% if status != 'approved' %}-outline{% endif %}-success btn-sm">Approved</a>
+            <a href="{{ view.get_url }}{% call_method view 'get_querystring' status='denied' %}" class="btn btn{% if status != 'denied' %}-outline{% endif %}-danger btn-sm">Denied</a>
+            <a href="{{ view.get_url }}{% call_method view 'get_querystring' status='withdrawn' %}" class="btn btn{% if status != 'withdrawn' %}-outline{% endif %}-secondary btn-sm">Withdrawn</a>
+        </div>
+    </div>
+    <div class="table-responsive">
+        <table class="table table-sm table-hover">
+            <thead>
+                <tr>
+                    <th class="text-nowrap text-center">{% include 'core/_list_sort.html' with view=view order='date' label='Date' only %}</th>
+                    <th class="text-center" title="Action">A</th>
+                    <th class="text-center" title="Status">S</th>
+                    <th>Type</th>
+                    <th>Object</th>
+                    <th>Changes</th>
+                    <th></th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for cr in object_list %}
+                <tr>
+                    <td class="text-nowrap text-center"><small>{% if cr.date_modified %}{{ cr.date_modified|date:'SHORT_DATE_FORMAT' }}{% else %}{{ cr.date_created|date:'SHORT_DATE_FORMAT' }}{% endif %}</small></td>
+                    <td class="text-center"><span class="badge {% if cr.request_type == cr.Type.ADD %}badge-success{% elif cr.request_type == cr.Type.MODIFY %}badge-info{% elif cr.request_type == cr.Type.DELETE %}badge-danger{% else %}badge-secondary{% endif %}" title="{{ cr.get_request_type_display }}">{{ cr.get_request_type_display|first|capfirst }}</span></td>
+                    <td class="text-center"><span class="badge {% if cr.status == cr.Status.PENDING %}badge-info{% elif cr.status == cr.Status.APPROVED %}badge-success{% elif cr.status == cr.Status.DENIED %}badge-danger{% else %}badge-secondary{% endif %}" title="{{ cr.get_status_display }}">{{ cr.get_status_display|first|capfirst }}</span></td>
+                    <td class="text-nowrap"><small>{{ cr.object_type|title }}</small></td>
+                    <td class="text-nowrap">
+                        {% if cr.object.get_absolute_url %}
+                            <a href="{{ cr.object.get_absolute_url }}">{{ cr.object }}</a>
+                        {% else %}
+                            {{ cr.object_str }}
+                        {% endif %}
+                    </td>
+                    <td class="w-100">
+                    {% if cr.request_type == cr.Type.RELATED %}
+                        {% with diff=cr.diff_related %}
+                            {% if diff.added_str|length > 0 %}
+                                <small class="text-success">Add:</small>
+                                {% for item in diff.added_str %}
+                                    {{ item }}{% if not forloop.last %}, {% endif %}
+                                {% endfor %}
+                            {% endif %}
+                            {% if diff.modified_str|length > 0 %}
+                                <small class="text-info">Modify:</small>
+                                {% for item in diff.modified_str %}
+                                    {{ item }}{% if not forloop.last %}, {% endif %}
+                                {% endfor %}
+                            {% endif %}
+                            {% if diff.deleted_str|length > 0 %}
+                                <small class="text-danger">Delete:</small>
+                                {% for item in diff.deleted_str %}
+                                    {{ item }}{% if not forloop.last %}, {% endif %}
+                                {% endfor %}
+                            {% endif %}
+                        {% endwith %}
+                    {% elif cr.request_type != cr.Type.ADD %}
+                        {% for field in cr.diff %}
+                            {{ field|title }}{% if not forloop.last %}, {% endif %}
+                        {% empty %}
+                            -
+                        {% endfor %}
+                    {% else %}
+                        -
+                    {% endif %}
+                    </td>
+                    <td class="text-nowrap"><img src="{{ cr.user.get_gravatar_url }}" width="22" height="22" class="rounded py-0" alt="{{ cr.user.username }}" title="{{ cr.user.username }}"></td>
+                    <td><a class="btn btn-outline-secondary btn-sm py-0" href="{{ cr.get_absolute_url }}">View</a></td>
+                </tr>
+            {% empty %}
+                <tr><td class="font-italic text-center" colspan="8">None</td></tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% if is_paginated %}
+        {% include 'core/_paginator.html' with page_obj=page_obj view=view only %}
+    {% endif %}
+{% endblock content %}

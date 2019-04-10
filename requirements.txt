@@ -3,5 +3,6 @@ django-debug-toolbar==1.11
 django-allauth==0.39.1
 psycopg2-binary==2.7.7
 Pillow==6.0.0
+bleach==3.1.0
 coverage==4.5.3
 fabric==2.4.0

@@ -1,6 +1,7 @@
 """AnimeSuki Core views"""
 
 from django.core.exceptions import ObjectDoesNotExist
+from django.utils.http import urlencode
 from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.contrib import messages
 
@@ -53,3 +54,46 @@ class ArtworkActiveViewMixin:
         except (ObjectDoesNotExist, IndexError):
             pass
         return result
+
+
+class ListViewQueryStringMixin:
+    ALLOWED_ORDER = []
+
+    def build_querystring(self, page=None, order=None):
+        q = dict()
+        # Page
+        if page is not None:
+            q['page'] = page
+        else:
+            try:
+                p = int(self.request.GET.get('page', 0))
+                if p > 0:
+                    q['page'] = p
+            except ValueError:
+                pass
+        # Order
+        o = self.request.GET.get('order', '').lower().strip()
+        if order is not None:
+            if o == order:
+                q['order'] = order[1:] if order[0] == '-' else '-' + order
+            else:  # Also inverse of '-order'
+                q['order'] = order
+            # New sort order should reset page
+            if q.get('page', None) is not None:
+                del q['page']
+        elif o in self.ALLOWED_ORDER:
+            q['order'] = o
+        return q
+
+    def get_querystring(self, *args, **kwargs):
+        q = self.build_querystring(*args, **kwargs)
+        if len(q) > 0:
+            return '?' + urlencode(q)
+        return ''
+
+    def get_order_direction(self, order):
+        # Determines current order direction (up or down) based on what -new- value of "order" will be (=opposite)
+        q = self.build_querystring(order=order)
+        if q['order'][0] == '-':
+            return 'up'
+        return 'down'

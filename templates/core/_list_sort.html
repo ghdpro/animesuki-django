@@ -1,0 +1,3 @@
+{% load animesuki %}
+<a href="{{ view.get_url }}{% call_method view 'get_querystring' order=order %}" class="text-body">{{ label }}</a>
+<a href="{{ view.get_url }}{% call_method view 'get_querystring' order=order %}" class="text-body"><i class="fas fa-caret-{% call_method view 'get_order_direction' order=order %}"></i></a>

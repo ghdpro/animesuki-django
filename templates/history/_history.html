@@ -50,10 +50,10 @@
                 {% endif %}
                 </td>
                 <td class="text-nowrap"><img src="{{ cr.user.get_gravatar_url }}" width="22" height="22" class="rounded py-0" alt="{{ cr.user.username }}"> <small>{{ cr.user.username }}</small></td>
-                <td><a class="btn btn-outline-secondary btn-sm py-0" href="{{ cr.url }}">View</a></td>
+                <td><a class="btn btn-outline-secondary btn-sm py-0" href="{{ cr.get_absolute_url }}">View</a></td>
             </tr>
         {% empty %}
-            <tr><td class="font-italic text-center" colspan="8">None</td></tr>
+            <tr><td class="font-italic text-center" colspan="6">None</td></tr>
         {% endfor %}
         </tbody>
     </table>
