@@ -52,7 +52,7 @@ def csvlist(value, index):
 
 
 @register.filter
-def getitem(dictionary, index):
+def get_item(dictionary, index):
     """Returns a value from a dictionary"""
     return dictionary.get(index)
 

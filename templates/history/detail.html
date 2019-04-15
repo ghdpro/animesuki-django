@@ -50,11 +50,11 @@
                 </thead>
                 <tbody>
                 {% for key, item in diff.existing.items %}
-                    {% with pk=item|getitem:diff.pk %}
+                    {% with pk=item|get_item:diff.pk %}
                     <tr{% if pk in diff.deleted %} class="table-danger alert-danger"{% endif %}>
                     {% for key, value in item.items %}
                         {% if key == diff.pk %}<th>{% else %}<td>{% endif %}
-                    {% if key in diff.modified|getitem:pk and pk not in diff.deleted %}<span class="alert-success px-1">{{ value }}</span>{% else %}{{ value }}{% endif %}
+                    {% if key in diff.modified|get_item:pk and pk not in diff.deleted %}<span class="alert-success px-1">{{ value }}</span>{% else %}{{ value }}{% endif %}
                         {% if key == diff.pk %}</th>{% else %}</td>{% endif %}
                     {% endfor %}
                     </tr>
@@ -88,8 +88,8 @@
                             <td>{% if value %}<span class="alert-success px-1">{{ value|linebreaksbr }}</span>{% else %}<span class="text-success">-</span>{% endif %}</td>
                         {% elif changerequest.request_type == changerequest.Type.MODIFY %}
                             <td>
-                                {% if changerequest.data_revert|getitem:key %}
-                                    <span class="alert-danger px-1">{{ changerequest.data_revert|getitem:key|linebreaksbr }}</span>
+                                {% if changerequest.data_revert|get_item:key %}
+                                    <span class="alert-danger px-1">{{ changerequest.data_revert|get_item:key|linebreaksbr }}</span>
                                 {% else %}
                                     <span class="text-danger">-</span>
                                 {% endif %}

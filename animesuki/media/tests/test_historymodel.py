@@ -34,7 +34,7 @@ class HistoryModelTest(TestCase):
         with self.assertRaises(ValidationError) as cm:
             obj.sanity_checks
         self.assertEqual(cm.exception.code, 'user-not-authenticated')
-        request.user = get_user_model().objects.create_user(username='test_user')  # reset
+        request.user = get_user_model().objects.create_user(username='test_user', email='test@example.com')  # reset
         # Inactive user should raise ValidationError with code 'user-not-active'
         request.user.is_active = False
         obj.request = request
@@ -63,7 +63,7 @@ class HistoryModelTest(TestCase):
         # Set Up
         obj = Media(title='Test')
         request = self.factory.get('/')
-        request.user = get_user_model().objects.create_user(username='test_user')
+        request.user = get_user_model().objects.create_user(username='test_user', email='test@example.com')
         obj.request = request
         obj._cr = obj.create_changerequest()
         # Sanity checks for next test
@@ -110,7 +110,7 @@ class HistoryModelTest(TestCase):
         # Set Up
         obj = Media(title='Test')
         request = self.factory.get('/')
-        request.user = get_user_model().objects.create_user(username='test_user')
+        request.user = get_user_model().objects.create_user(username='test_user', email='test@example.com')
         # Create change request
         obj.request = request
         obj.comment = 'Test Comment'

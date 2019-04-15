@@ -110,7 +110,7 @@ class Media(HistoryModel):
     artwork = models.ForeignKey('MediaArtwork', related_name='media_artwork', on_delete=models.SET_NULL,
                                 null=True, blank=True, default=None)
 
-    HISTORY_MODERATE_FIELDS = ('title', 'slug', 'media_type', 'sub_type', 'is_adult')
+    HISTORY_MODERATE_FIELDS = ('title', 'media_type', 'sub_type', 'is_adult')
 
     def __str__(self):
         return self.title
