@@ -10,13 +10,15 @@
 {% block content %}
     <div class="d-flex flex-wrap">
         <h1>{{ media.title }}</h1>
-        {% if user.is_authenticated %}{% include 'media/_menu.html' with media=media only %}{% endif %}
+        {% if perms.media %}{% include 'media/_menu.html' with media=media perms=perms only %}{% endif %}
     </div>
     <div class="container"><div class="row">
-        <div class="col-md-4 order-md-12 pr-md-0">
-            <img src="{% call_method media.artwork 'get_image_url' '352w' %}" srcset="{% for size in media.artwork.get_image_sizes %}{% call_method media.artwork 'get_image_url' size %} {{ size }}{% if not forloop.last %}, {% endif %}{% endfor %}"  sizes="(max-width: 319px) 100vw, (max-width: 767px) 528px, (max-width: 1199px) 292px, 352px" class="img-fluid rounded" alt="{{ media.artwork }}" />
-        </div>
-        <div class="col-md-8 order-md-1">
+        {% if media.artwork %}
+            <div class="col-md-4 order-md-12 pr-md-0">
+                <img src="{% call_method media.artwork 'get_image_url' '352w' %}" srcset="{% for size in media.artwork.get_image_sizes %}{% call_method media.artwork 'get_image_url' size %} {{ size }}{% if not forloop.last %}, {% endif %}{% endfor %}"  sizes="(max-width: 319px) 100vw, (max-width: 767px) 528px, (max-width: 1199px) 292px, 352px" class="img-fluid rounded" alt="{{ media.artwork }}" />
+            </div>
+            <div class="col-md-8 order-md-1">
+        {% endif %}
 {% with r='row py-1' h='col-lg-2 col-sm-3 pl-sm-2 font-weight-bold' d='col-lg-10 col-sm-9' %}
     <div class="{{ r }}">
         <div class="{{ h }}">Type</div>
@@ -70,6 +72,8 @@
     </div>
     {% endif %}
 {% endwith %}
-        </div>
+        {% if media.artwork %}
+            </div>
+        {% endif %}
     </div></div>
 {% endblock content %}

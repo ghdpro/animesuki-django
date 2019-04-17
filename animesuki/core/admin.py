@@ -15,12 +15,12 @@ class AnimeSukiUserAdmin(UserAdmin):
     fieldsets = (
         (None, {'fields': ('username', 'password')}),
         (_('Personal info'), {'fields': ('email',)}),
-        (_('Permissions'), {'fields': ('is_active', 'is_banned', 'is_staff', 'is_superuser',
+        (_('Permissions'), {'fields': ('is_active', 'is_staff', 'is_superuser',
                                        'groups', 'user_permissions')}),
         (_('Important dates'), {'fields': ('last_login', 'date_joined')}),
     )
-    list_display = ('username', 'email', 'is_staff', 'is_banned')
-    list_filter = ('is_staff', 'is_superuser', 'is_active', 'is_banned', 'groups')
+    list_display = ('username', 'email', 'is_staff')
+    list_filter = ('is_staff', 'is_superuser', 'is_active', 'groups')
     search_fields = ('username', 'email')
 
 

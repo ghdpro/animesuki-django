@@ -56,11 +56,6 @@ class AnimeSukiUser(AbstractBaseUser, PermissionsMixin):
             'Unselect this instead of deleting accounts.'
         ),
     )
-    is_banned = models.BooleanField(
-        _('banned'),
-        default=False,
-        help_text=_('Designates whether the user is allowed to make modifications to the AnimeSuki database.'),
-    )
     date_joined = models.DateTimeField(_('date joined'), default=timezone.now)
 
     objects = UserManager()
@@ -137,6 +132,11 @@ class Option(models.Model):
 
     def __str__(self):
         return self.code
+
+    class Meta:
+        permissions = (
+            ('emergency_shutdown', 'Can enable Emergency Shutdown'),
+        )
 
 
 def artwork_upload_location(instance, filename):

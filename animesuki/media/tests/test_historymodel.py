@@ -42,13 +42,6 @@ class HistoryModelTest(TestCase):
             obj.sanity_checks
         self.assertEqual(cm.exception.code, 'user-not-active')
         request.user.is_active = True  # reset
-        # Banned user should raise ValidationError with code 'user-banned'
-        request.user.is_banned = True
-        obj.request = request
-        with self.assertRaises(ValidationError) as cm:
-            obj.sanity_checks
-        self.assertEqual(cm.exception.code, 'user-banned')
-        request.user.is_banned = False  # reset
         # Emergency Shutdown option should raise ValidationError with code 'emergency-shutdown' when enabled
         o = Option.objects.get(code='emergency-shutdown')
         o.value = 'true'

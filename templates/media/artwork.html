@@ -6,7 +6,7 @@
 {% block content %}
     <div class="d-flex flex-wrap">
         <h1>{{ media.title }} <span class="text-muted">Artwork</span></h1>
-        {% if user.is_authenticated %}{% include 'media/_menu.html' with media=media only %}{% endif %}
+        {% if perms.media %}{% include 'media/_menu.html' with media=media perms=perms only %}{% endif %}
     </div>
     <form action="{% get_absolute_url media 'media:artwork' %}" enctype="multipart/form-data" method="post">
         {% csrf_token %}

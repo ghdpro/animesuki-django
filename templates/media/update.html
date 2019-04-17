@@ -6,7 +6,7 @@
 {% block content_title %}
     <div class="d-flex flex-wrap">
         <h1><span class="text-muted">Edit</span> {{ media.title }}</h1>
-        {% if user.is_authenticated %}{% include 'media/_menu.html' with media=media only %}{% endif %}
+        {% if perms.media %}{% include 'media/_menu.html' with media=media perms=perms only %}{% endif %}
     </div>
 {% endblock content_title %}
 

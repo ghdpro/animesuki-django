@@ -8,9 +8,8 @@ from django.http import HttpResponseRedirect
 from django.urls import reverse
 from django.views.generic.detail import DetailView
 from django.views.generic.list import ListView
-from django.contrib.auth.mixins import LoginRequiredMixin
 
-from animesuki.core.views import ListViewQueryStringMixin
+from animesuki.core.views import AnimeSukiPermissionMixin, ListViewQueryStringMixin
 
 from .forms import HistoryCommentForm
 from .models import ChangeRequest
@@ -62,12 +61,14 @@ class HistoryFormsetViewMixin:
         return HttpResponseRedirect(self.get_success_url())
 
 
-class HistoryDetailView(LoginRequiredMixin, DetailView):
+class HistoryDetailView(AnimeSukiPermissionMixin, DetailView):
+    permission_required = 'history.view_changerequest'
     template_name = 'history/detail.html'
     model = ChangeRequest
 
 
-class HistoryListView(LoginRequiredMixin, ListViewQueryStringMixin, ListView):
+class HistoryListView(AnimeSukiPermissionMixin, ListViewQueryStringMixin, ListView):
+    permission_required = 'history.view_changerequest'
     template_name = 'history/list.html'
     model = ChangeRequest
     paginate_by = 25

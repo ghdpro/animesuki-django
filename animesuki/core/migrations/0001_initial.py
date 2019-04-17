@@ -42,9 +42,6 @@ class Migration(migrations.Migration):
                 ('is_active', models.BooleanField(default=True,
                                                   help_text='Designates whether this user should be treated as active. Unselect this instead of deleting accounts.',
                                                   verbose_name='active')),
-                ('is_banned', models.BooleanField(default=False,
-                                                  help_text='Designates whether the user is allowed to make modifications to the AnimeSuki database.',
-                                                  verbose_name='banned')),
                 ('date_joined', models.DateTimeField(default=django.utils.timezone.now, verbose_name='date joined')),
                 ('groups', models.ManyToManyField(blank=True,
                                                   help_text='The groups this user belongs to. A user will get all permissions granted to each of their groups.',
@@ -82,5 +79,6 @@ class Migration(migrations.Migration):
                  models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.PROTECT,
                                    related_name='option_user', to=settings.AUTH_USER_MODEL)),
             ],
+            options={'permissions': (('emergency_shutdown', 'Can enable Emergency Shutdown'),)},
         ),
     ]

@@ -2,9 +2,15 @@
 <div class="btn-group align-self-center d-block ml-auto">
     <button type="button" class="btn btn-sm btn-outline-secondary dropdown-toggle" data-toggle="dropdown"><i class="fas fa-cog"></i> Options</button>
     <div class="dropdown-menu dropdown-menu-right">
-        <a href="{% get_absolute_url media 'media:update' %}" class="dropdown-item"><i class="fas fa-pencil-alt fa-fw"></i> Edit</a>
-        <a href="{% get_absolute_url media 'media:artwork' %}" class="dropdown-item"><i class="fas fa-file-image fa-fw"></i> Artwork</a>
-        <div class="dropdown-divider"></div>
-        <a href="{% url 'media:create' 'media' %}" class="dropdown-item"><i class="fas fa-plus fa-fw"></i> Create</a>
+        {% if perms.media.change_media %}
+            <a href="{% get_absolute_url media 'media:update' %}" class="dropdown-item"><i class="fas fa-pencil-alt fa-fw"></i> Edit</a>
+        {% endif %}
+        {% if perms.media.change_mediaartwork %}
+            <a href="{% get_absolute_url media 'media:artwork' %}" class="dropdown-item"><i class="fas fa-file-image fa-fw"></i> Artwork</a>
+        {% endif %}
+        {% if perms.media.add_media %}
+            <div class="dropdown-divider"></div>
+            <a href="{% url 'media:create' 'media' %}" class="dropdown-item"><i class="fas fa-plus fa-fw"></i> Create</a>
+        {% endif %}
     </div>
 </div>

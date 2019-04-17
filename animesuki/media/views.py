@@ -1,7 +1,6 @@
 """AnimeSuki Media views"""
 
 from django.views.generic import DetailView, CreateView, UpdateView
-from django.contrib.auth.mixins import LoginRequiredMixin
 
 from animesuki.core.views import AnimeSukiPermissionMixin, ArtworkActiveViewMixin, CanonicalDetailViewMixin
 from animesuki.history.views import HistoryFormViewMixin, HistoryFormsetViewMixin
@@ -15,7 +14,8 @@ class MediaDetailView(CanonicalDetailViewMixin, DetailView):
     model = Media
 
 
-class MediaCreateView(LoginRequiredMixin, HistoryFormViewMixin, CreateView):
+class MediaCreateView(AnimeSukiPermissionMixin, HistoryFormViewMixin, CreateView):
+    permission_required = 'media.add_media'
     template_name = 'media/create.html'
     form_class = MediaCreateForm
     model = Media
@@ -24,7 +24,8 @@ class MediaCreateView(LoginRequiredMixin, HistoryFormViewMixin, CreateView):
         return self.object.get_absolute_url('media:update')
 
 
-class MediaUpdateView(LoginRequiredMixin, HistoryFormViewMixin, UpdateView):
+class MediaUpdateView(AnimeSukiPermissionMixin, HistoryFormViewMixin, UpdateView):
+    permission_required = 'media.change_media'
     template_name = 'media/update.html'
     form_class = MediaUpdateForm
     model = Media
@@ -34,7 +35,7 @@ class MediaUpdateView(LoginRequiredMixin, HistoryFormViewMixin, UpdateView):
 
 
 class MediaArtworkView(AnimeSukiPermissionMixin, ArtworkActiveViewMixin, HistoryFormsetViewMixin, UpdateView):
-    permission_required = 'history.self_approve'
+    permission_required = 'media.change_mediaartwork'
     permission_denied_message = 'To be able to upload artwork you need to be a Contributor'
     template_name = 'media/artwork.html'
     form_class = MediaArtworkForm

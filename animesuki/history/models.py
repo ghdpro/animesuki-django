@@ -268,7 +268,6 @@ class ChangeRequest(models.Model):
             ('mod_approve', 'Can moderate add, modify & related requests'),
             ('mod_delete', 'Can moderate delete requests'),
         )
-        default_permissions = ()
 
 
 class HistoryModel(models.Model):
@@ -346,9 +345,6 @@ class HistoryModel(models.Model):
             raise ValidationError('You need to be logged in to perform this action.', code='user-not-authenticated')
         if not self.request.user.is_active:
             raise ValidationError('Your user account is not active.', code='user-not-active')
-        if self.request.user.is_banned:
-            raise ValidationError('You are permanently banned from making changes to the database.',
-                                  code='user-banned')
         if Option.objects.get_bool(Option.EMERGENCY_SHUTDOWN):
             raise ValidationError('Making any changes to the database is currently disabled.',
                                   code='emergency-shutdown')
