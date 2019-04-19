@@ -37,7 +37,7 @@
                 <tr>
                     <td class="text-nowrap text-center"><small>{% if cr.date_modified %}{{ cr.date_modified|date:'SHORT_DATE_FORMAT' }}{% else %}{{ cr.date_created|date:'SHORT_DATE_FORMAT' }}{% endif %}</small></td>
                     <td class="text-center"><span class="badge {% if cr.request_type == cr.Type.ADD %}badge-success{% elif cr.request_type == cr.Type.MODIFY %}badge-info{% elif cr.request_type == cr.Type.DELETE %}badge-danger{% else %}badge-secondary{% endif %}" title="{{ cr.get_request_type_display }}">{{ cr.get_request_type_display|first|capfirst }}</span></td>
-                    <td class="text-center"><span class="badge {% if cr.status == cr.Status.PENDING %}badge-info{% elif cr.status == cr.Status.APPROVED %}badge-success{% elif cr.status == cr.Status.DENIED %}badge-danger{% else %}badge-secondary{% endif %}" title="{{ cr.get_status_display }}">{{ cr.get_status_display|first|capfirst }}</span></td>
+                    <td class="text-center"><span class="badge {% if cr.status == cr.Status.PENDING %}badge-info{% elif cr.status == cr.Status.APPROVED %}badge-success{% elif cr.status == cr.Status.DENIED %}badge-warning{% elif cr.status == cr.Status.REVERTED %}badge-danger{% else %}badge-secondary{% endif %}" title="{{ cr.get_status_display }}">{{ cr.get_status_display|first|capfirst }}</span></td>
                     <td class="text-nowrap"><small>{{ cr.object_type|title }}</small></td>
                     <td class="text-nowrap">
                         {% if cr.object.get_absolute_url %}

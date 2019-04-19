@@ -2,12 +2,14 @@
 
 import bleach
 
-from django.core.exceptions import ImproperlyConfigured
+from django.core.exceptions import ImproperlyConfigured, PermissionDenied
 from django.db import transaction
 from django.http import HttpResponseRedirect
+from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse
 from django.views.generic.detail import DetailView
 from django.views.generic.list import ListView
+from django.contrib import messages
 
 from animesuki.core.views import AnimeSukiPermissionMixin, ListViewQueryStringMixin
 
@@ -127,3 +129,41 @@ class HistoryListView(AnimeSukiPermissionMixin, ListViewQueryStringMixin, ListVi
         if user:
             q['user'] = user
         return q
+
+
+def history_action(request, pk):
+    cr = get_object_or_404(ChangeRequest, pk=pk)
+    action = request.POST.get('action').lower().strip()
+    # User action (Withdraw)
+    if action == 'withdraw':
+        # Check if user matches
+        if request.user != cr.user:
+            raise PermissionDenied('Only the user who created the change request can withdraw it.')
+        cr.withdraw()
+        messages.success(request, 'Change request has been withdrawn.')
+    # Moderator actions
+    else:
+        # Moderator permission check
+        if not request.user.has_perm('history.mod_approve'):
+            raise PermissionDenied('You do not have permission to moderate change requests.')
+        # Set moderator
+        cr.set_mod(request)
+        # Approve
+        if action == 'approve':
+            # Additional moderator permission check in case of delete
+            if cr.request_type == ChangeRequest.Type.DELETE and not request.user.has_perm('history.mod_delete'):
+                raise PermissionDenied('You do not have permission to approve deletion requests.')
+            cr.approve()
+            messages.success(request, 'Change request has been approved.')
+        # Deny
+        elif action == 'deny':
+            cr.deny()
+            messages.success(request, 'Change request has been denied.')
+        # Revert
+        elif action == 'revert':
+            cr.revert()
+            messages.success(request, 'Change request has been reverted.')
+        else:
+            raise Exception('Invalid action')
+    cr.log()
+    return redirect(cr)

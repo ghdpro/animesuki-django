@@ -16,7 +16,7 @@
             <tr>
                 <td class="text-nowrap text-center"><small>{% if cr.date_modified %}{{ cr.date_modified|date:'SHORT_DATETIME_FORMAT' }}{% else %}{{ cr.date_created|date:'SHORT_DATETIME_FORMAT' }}{% endif %}</small></td>
                 <td class="text-center"><span class="badge {% if cr.request_type == cr.Type.ADD %}badge-success{% elif cr.request_type == cr.Type.MODIFY %}badge-info{% elif cr.request_type == cr.Type.DELETE %}badge-danger{% else %}badge-secondary{% endif %}">{{ cr.get_request_type_display }}</span></td>
-                <td class="text-center"><span class="badge {% if cr.status == cr.Status.PENDING %}badge-info{% elif cr.status == cr.Status.APPROVED %}badge-success{% elif cr.status == cr.Status.DENIED %}badge-danger{% else %}badge-secondary{% endif %}">{{ cr.get_status_display }}</span></td>
+                <td class="text-center"><span class="badge {% if cr.status == cr.Status.PENDING %}badge-info{% elif cr.status == cr.Status.APPROVED %}badge-success{% elif cr.status == cr.Status.DENIED %}badge-warning{% elif cr.status == cr.Status.REVERTED %}badge-danger{% else %}badge-secondary{% endif %}">{{ cr.get_status_display }}</span></td>
                 <td class="w-100">
                 {% if cr.request_type == cr.Type.RELATED %}
                     {% with diff=cr.diff_related %}
@@ -50,7 +50,7 @@
                 {% endif %}
                 </td>
                 <td class="text-nowrap"><img src="{{ cr.user.get_gravatar_url }}" width="22" height="22" class="rounded py-0" alt="{{ cr.user.username }}"> <small>{{ cr.user.username }}</small></td>
-                <td><a class="btn btn-outline-secondary btn-sm py-0" href="{{ cr.get_absolute_url }}">View</a></td>
+                <td>{% if perms.history.view_changerequest %}<a class="btn btn-outline-secondary btn-sm py-0" href="{{ cr.get_absolute_url }}">View</a>{% endif %}</td>
             </tr>
         {% empty %}
             <tr><td class="font-italic text-center" colspan="6">None</td></tr>

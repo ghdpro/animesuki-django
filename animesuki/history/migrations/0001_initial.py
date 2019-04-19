@@ -24,7 +24,7 @@ class Migration(migrations.Migration):
                 ('object_id', models.PositiveIntegerField(blank=True, null=True)),
                 ('object_str', models.CharField(blank=True, max_length=250)),
                 ('request_type', models.PositiveSmallIntegerField(choices=[(1, 'Add'), (2, 'Modify'), (3, 'Delete'), (4, 'Related')])),
-                ('status', models.PositiveSmallIntegerField(choices=[(1, 'Pending'), (2, 'Approved'), (3, 'Denied'), (4, 'Withdrawn')], default=1)),
+                ('status', models.PositiveSmallIntegerField(choices=[(1, 'Pending'), (2, 'Approved'), (3, 'Denied'), (4, 'Withdrawn'), (5, 'Reverted')], default=1)),
                 ('data_revert', django.contrib.postgres.fields.jsonb.JSONField(blank=True, encoder=django.core.serializers.json.DjangoJSONEncoder, null=True)),
                 ('data_changed', django.contrib.postgres.fields.jsonb.JSONField(blank=True, encoder=django.core.serializers.json.DjangoJSONEncoder, null=True)),
                 ('comment', models.TextField(blank=True)),
