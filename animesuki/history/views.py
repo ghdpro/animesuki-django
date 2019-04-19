@@ -75,7 +75,7 @@ class HistoryListView(AnimeSukiPermissionMixin, ListViewQueryStringMixin, ListVi
     model = ChangeRequest
     paginate_by = 25
     ALLOWED_ORDER = ['date', '-date']
-    ALLOWED_STATUS = ['pending', 'approved', 'denied', 'withdrawn']
+    ALLOWED_STATUS = ['pending', 'approved', 'denied', 'withdrawn', 'reverted']
 
     def get_ordering(self):
         order = self.request.GET.get('order', '').strip().lower()

@@ -31,7 +31,7 @@
     <div class="{{ r }}">
         <div class="{{ h }}">Status</div>
         <div class="{{ d }}">
-            <span class="badge {% if changerequest.status == changerequest.Status.PENDING %}badge-info{% elif changerequest.status == changerequest.Status.APPROVED %}badge-success{% elif changerequest.status == changerequest.Status.DENIED %}badge-danger{% else %}badge-secondary{% endif %}">{{ changerequest.get_status_display }}</span>
+            <span class="badge {% if changerequest.status == changerequest.Status.PENDING %}badge-info{% elif changerequest.status == changerequest.Status.APPROVED %}badge-success{% elif changerequest.status == changerequest.Status.DENIED %}badge-warning{% elif changerequest.status == changerequest.Status.REVERTED %}badge-danger{% else %}badge-secondary{% endif %}">{{ changerequest.get_status_display }}</span>
         </div>
     </div>
     <div class="{{ r }}">
@@ -121,6 +121,24 @@
         <div class="{{ d }}"><img src="{{ changerequest.mod.get_gravatar_url }}" width="22" height="22" class="rounded" alt="{{ cr.mod.username }}"> {{ changerequest.mod.username }} <small>({{ changerequest.date_modified }})</small></div>
     </div>
     {% endif %}
+    <form action="{% url 'history:action' changerequest.pk %}" method="post">
+        {% csrf_token %}
+	    <div class="form-group row mt-3">
+		    <div class="{{ h }}"></div>
+		    <div class="{{ d }}">
+                {% if changerequest.status == changerequest.Status.PENDING and perms.history.mod_approve %}
+                    <button type="submit" name="action" value="approve" class="btn btn-primary my-2"><i class="far fa-thumbs-up"></i> Approve</button>
+                    <button type="submit" name="action" value="deny" class="btn btn-primary my-2 ml-2"><i class="fas fa-ban"></i> Deny</button>
+                {% endif %}
+                {% if changerequest.status == changerequest.Status.APPROVED and perms.history.mod_approve %}
+                    <button type="submit" name="action" value="revert" class="btn btn-primary my-2"><i class="fas fa-backspace"></i> Revert</button>
+                {% endif %}
+                {% if changerequest.status == changerequest.Status.PENDING and request.user == changerequest.user %}
+                    <button type="submit" name="action" value="withdraw" class="btn btn-primary my-2"><i class="far fa-trash-alt"></i> Withdraw</button>
+                {% endif %}
+            </div>
+        </div>
+    </form>
 {% endwith %}
     </div>
 {% endblock content %}

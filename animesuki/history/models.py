@@ -4,7 +4,7 @@ import logging
 from collections import OrderedDict
 
 from django.conf import settings
-from django.core.exceptions import ValidationError
+from django.core.exceptions import ValidationError, ObjectDoesNotExist
 from django.core.serializers.json import DjangoJSONEncoder
 from django.db import models
 from django.db.models.fields.related import ManyToManyField
@@ -113,11 +113,13 @@ class ChangeRequest(models.Model):
         APPROVED = 2
         DENIED = 3
         WITHDRAWN = 4
+        REVERTED = 5
         choices = (
             (PENDING, 'Pending'),
             (APPROVED, 'Approved'),
             (DENIED, 'Denied'),
             (WITHDRAWN, 'Withdrawn'),
+            (REVERTED, 'Reverted'),
         )
         lookup = dict((v[1].lower(), v[0]) for k, v in enumerate(choices))
 
@@ -175,10 +177,49 @@ class ChangeRequest(models.Model):
         self.mod = request.user
         self.mod_ip = get_ip_from_request(request)
 
+    def log(self, action=None, obj=None):
+        action = self.get_request_type_display() if action is None else action
+        obj = format_object_str(self.object_type, self.object_str, self.object_id) if obj is None else obj
+        user = '"{}" ({})'.format(self.user.username, self.user.pk)
+        mod = ''
+        if self.mod is not None:
+            mod = ' mod "{}" ({})'.format(self.mod.username, self.mod.pk)
+        logger.info('ChangeRequest: [{}] [{}] {} user {}{}'
+                    .format(action, self.get_status_display(), obj, user, mod))
+
     def save(self, *args, **kwargs):
         # Prevent duplicates: when modifying existing entries, do not save if data_revert equals data_changed
         if (self.request_type not in (self.Type.MODIFY, self.Type.RELATED)) or (self.data_revert != self.data_changed):
             super().save(*args, **kwargs)
+
+    def approve(self):
+        if self.status != ChangeRequest.Status.PENDING:
+            raise Exception('Cannot approve a change request that is not pending.')
+        self.object._apply(self.data_changed)
+        self.status = ChangeRequest.Status.APPROVED
+        self.save()
+
+    def deny(self):
+        if self.status != ChangeRequest.Status.PENDING:
+            raise Exception('Cannot deny a change request that is not pending.')
+        self.status = ChangeRequest.Status.DENIED
+        self.save()
+
+    def withdraw(self):
+        if self.status != ChangeRequest.Status.PENDING:
+            raise Exception('Cannot withdraw a change request that is not pending.')
+        self.status = ChangeRequest.Status.WITHDRAWN
+        self.save()
+
+    def revert(self):
+        if self.status != ChangeRequest.Status.APPROVED:
+            raise Exception('Cannot revert a change request that is not approved.')
+        # Reverting deleted objects is potentially not trivial (in case of related objects etc)
+        if self.request_type == ChangeRequest.Type.DELETE:
+            raise Exception('Cannot revert a delete request.')
+        self.object._apply(self.data_revert)
+        self.status = ChangeRequest.Status.REVERTED
+        self.save()
 
     def diff(self):
         if self.object_type_id not in self._class_cache:
@@ -406,31 +447,24 @@ class HistoryModel(models.Model):
         cr.set_user(self.request)
         return cr
 
-    def log(self, action=None, obj=None):
-        action = self._cr.get_request_type_display() if action is None else action
-        obj = format_object_str(self._cr.object_type, self._cr.object_str, self._cr.object_id) if obj is None else obj
-        user = '"{}" ({})'.format(self._cr.user.username, self._cr.user.pk)
-        mod = ''
-        if self._cr.mod is not None:
-            mod = ' mod "{}" ({})'.format(self._cr.mod.username, self._cr.mod.pk)
-        logger.info('ChangeRequest: [{}] [{}] {} user {}{}'
-                    .format(action, self._cr.get_status_display(), obj, user, mod))
-
     def clean(self):
-        self.sanity_checks
+        if self.sanity_checks:
+            pass
         # Caution: the following might cause issues in a ModelForm where the action executed isn't simply save()
-        self.sanity_checks_extra
+        if self.sanity_checks_extra:
+            pass
 
     def save(self, *args, **kwargs):
         self._cr = self.create_changerequest()
+        # Approve immediately if right conditions are met
         if self.self_approve and self.sanity_checks and self.sanity_checks_extra:
-            # Approve immediately if right conditions are met
             self._cr.status = ChangeRequest.Status.APPROVED
+        # Save ChangeRequest object (only if not detected as a duplicate)
         self._cr.save()
         # Save actual model instance if: ChangeRequest object was saved -and- the request was self-approved
         # (ChangeRequest object will not have been saved if data was not altered)
         if self._cr.pk:
-            self.log()
+            self._cr.log()
             if self._cr.status == ChangeRequest.Status.APPROVED:
                 super().save(*args, **kwargs)
                 self._cr.set_object(self)
@@ -457,19 +491,19 @@ class HistoryModel(models.Model):
         # Save formset if: ChangeRequest object was saved -and- the request was self-approved
         # (ChangeRequest object will not have been saved if data was not altered)
         if self._cr.pk:
-            self.log()
+            self._cr.log()
             if self._cr.status == ChangeRequest.Status.APPROVED:
                 formset.save()
                 # Generate message(s)
                 for obj in formset.new_objects:
                     self.add_message(messages.SUCCESS, 'Added', self._cr.related_type, obj)
-                    self.log('Add', format_object_str(self._cr.related_type, obj, obj.pk))
+                    self._cr.log('Add', format_object_str(self._cr.related_type, obj, obj.pk))
                 for obj in formset.changed_objects:
                     self.add_message(messages.SUCCESS, 'Updated', self._cr.related_type, obj)
-                    self.log('Modify', format_object_str(self._cr.related_type, obj, obj.pk))
+                    self._cr.log('Modify', format_object_str(self._cr.related_type, obj, obj.pk))
                 for obj in formset.deleted_objects:
                     self.add_message(messages.SUCCESS, 'Deleted', self._cr.related_type, obj)
-                    self.log('Delete', format_object_str(self._cr.related_type, obj, obj.pk))
+                    self._cr.log('Delete', format_object_str(self._cr.related_type, obj, obj.pk))
                 # Refresh data_changed: any new instances should now have a pk set
                 self._cr.data_changed = formset_data_revert(formset)
                 self._cr.save()
@@ -491,10 +525,27 @@ class HistoryModel(models.Model):
             self._cr.save()
         if self._cr.status == ChangeRequest.Status.PENDING:
             self.add_message_pending()
-        self.log()
+        self._cr.log()
         # Reset cached property
         if hasattr(self, 'has_pending'):
             delattr(self, 'has_pending')
+
+    def _apply(self, data):
+        for key, value in data.items():
+            # Foreign Key
+            if isinstance(self._meta.get_field(key), models.ForeignKey):
+                f = self._meta.get_field(key)
+                try:
+                    obj = f.related_model.objects.get(**{f.remote_field.field_name: value})
+                    setattr(self, key, obj)
+                except ObjectDoesNotExist:
+                    logger.warning('ChangeRequest: Foreign Key lookup failed: "{}" {} #{}'.format(
+                        f.related_model._meta.object_name, f.remote_field.field_name, value))
+            # All other field types
+            else:
+                setattr(self, key, value)
+        # Save
+        super().save()
 
     def add_message(self, level, verb, obj_type, obj_str):
         self._messages.append({'level': level,
