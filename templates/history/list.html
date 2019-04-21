@@ -11,12 +11,12 @@
     <div class="d-flex flex-wrap">
         <h1><span class="text-muted">Browse</span> History</h1>
         <div class="btn-group align-self-center ml-auto">
-            <a href="{{ view.get_url }}{% call_method view 'get_querystring' status='all' %}" class="btn btn{% if status != 'all' %}-outline{% endif %}-primary btn-sm">All</a>
-            <a href="{{ view.get_url }}{% call_method view 'get_querystring' status='pending' %}" class="btn btn{% if status != 'pending' %}-outline{% endif %}-info btn-sm">Pending</a>
-            <a href="{{ view.get_url }}{% call_method view 'get_querystring' status='approved' %}" class="btn btn{% if status != 'approved' %}-outline{% endif %}-success btn-sm">Approved</a>
-            <a href="{{ view.get_url }}{% call_method view 'get_querystring' status='denied' %}" class="btn btn{% if status != 'denied' %}-outline{% endif %}-warning btn-sm">Denied</a>
-            <a href="{{ view.get_url }}{% call_method view 'get_querystring' status='withdrawn' %}" class="btn btn{% if status != 'withdrawn' %}-outline{% endif %}-secondary btn-sm">Withdrawn</a>
-            <a href="{{ view.get_url }}{% call_method view 'get_querystring' status='reverted' %}" class="btn btn{% if status != 'reverted' %}-outline{% endif %}-danger btn-sm">Reverted</a>
+            <a href="{{ view.get_url }}{% call_method view 'get_querystring' status='all' %}" class="btn btn{% if status == 'all' %}-primary{% else %}-outline-secondary{% endif %} btn-sm">All</a>
+            <a href="{{ view.get_url }}{% call_method view 'get_querystring' status='pending' %}" class="btn btn{% if status == 'pending' %}-info{% else %}-outline-secondary{% endif %} btn-sm">Pending</a>
+            <a href="{{ view.get_url }}{% call_method view 'get_querystring' status='approved' %}" class="btn btn{% if status == 'approved' %}-success{% else %}-outline-secondary{% endif %} btn-sm">Approved</a>
+            <a href="{{ view.get_url }}{% call_method view 'get_querystring' status='denied' %}" class="btn btn{% if status == 'denied' %}-warning{% else %}-outline-secondary{% endif %} btn-sm">Denied</a>
+            <a href="{{ view.get_url }}{% call_method view 'get_querystring' status='withdrawn' %}" class="btn btn{% if status == 'withdrawn' %}-secondary{% else %}-outline-secondary{% endif %} btn-sm">Withdrawn</a>
+            <a href="{{ view.get_url }}{% call_method view 'get_querystring' status='reverted' %}" class="btn btn{% if status == 'reverted' %}-danger{% else %}-outline-secondary{% endif %} btn-sm">Reverted</a>
         </div>
     </div>
     <div class="table-responsive">
