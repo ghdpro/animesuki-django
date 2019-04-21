@@ -9,6 +9,10 @@ from django.contrib import admin
 from allauth.account import views as account
 
 
+api_v1_patterns = [
+    re_path(r'media/', include('animesuki.media.api.urls')),
+]
+
 # URLs for django-allauth/account have been redefined here to remove the ending slash
 account_patterns = [
     path('signup', account.signup, name='account_signup'),
@@ -34,6 +38,7 @@ account_patterns = [
 urlpatterns = [
     re_path(r'^(?P<mediatype>media|anime|manga|novel)/', include('animesuki.media.urls')),
     path('history/', include('animesuki.history.urls')),
+    path('v1/', include(api_v1_patterns), name='api_v1'),
     path('admin/', admin.site.urls),
     path('account/', include(account_patterns)),
     path('', TemplateView.as_view(template_name='frontpage.html'), name='frontpage')

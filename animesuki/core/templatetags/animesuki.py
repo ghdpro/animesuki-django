@@ -79,10 +79,4 @@ def call_method(obj, func, *args, **kwargs):
 
 @register.filter
 def date_precision(value, precision):
-    """Blanks out parts of the date based on specified precision"""
-    if precision == DatePrecision.YEAR:
-        return value[:5] + '??-??'
-    elif precision == DatePrecision.MONTH:
-        return value[:8] + '??'
-    # DatePrecision.FULL
-    return value
+    return DatePrecision.get_precision(value, precision)

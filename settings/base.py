@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'django.contrib.sites',  # Required by django-allauth
     'allauth',
     'allauth.account',
+    'rest_framework',
     'animesuki.core',
     'animesuki.history',
     'animesuki.media'
@@ -194,4 +195,11 @@ en_formats.SHORT_DATE_FORMAT = 'Y-m-d'
 from django.contrib.messages import constants as messages
 MESSAGE_TAGS = {
     messages.ERROR: 'danger',
+}
+
+# Django REST Framework
+REST_FRAMEWORK = {
+    'DEFAULT_PERMISSION_CLASSES': (
+        'rest_framework.permissions.IsAdminUser',
+    ),
 }

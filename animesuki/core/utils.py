@@ -15,6 +15,18 @@ class DatePrecision:
         (MONTH, 'Month'),
     )
 
+    @staticmethod
+    def get_precision(value, precision):
+        """Blanks out parts of the date based on specified precision"""
+        # Make sure value is a string
+        value = str(value)
+        if precision == DatePrecision.YEAR:
+            return value[:5] + '??-??'
+        elif precision == DatePrecision.MONTH:
+            return value[:8] + '??'
+        # DatePrecision.FULL
+        return value
+
 
 def get_ip_from_request(request):
     """"Extracts IP address from Request object"""
