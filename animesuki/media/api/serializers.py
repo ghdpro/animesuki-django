@@ -15,7 +15,6 @@ class MediaSerializer(serializers.HyperlinkedModelSerializer):
     start_date = serializers.SerializerMethodField()
     end_date = serializers.SerializerMethodField()
     season = serializers.CharField(source='get_season_display')
-    artwork_selected = serializers.HyperlinkedRelatedField(source='artwork', read_only=True, view_name='mediaartwork-detail')
 
     def get_start_date(self, obj):
         return DatePrecision.get_precision(obj.start_date, obj.start_precision)
@@ -27,7 +26,7 @@ class MediaSerializer(serializers.HyperlinkedModelSerializer):
         model = Media
         fields = ('url', 'site_url', 'title', 'media_type', 'sub_type', 'status', 'is_adult',
                   'episodes', 'duration', 'volumes', 'chapters', 'start_date', 'end_date',
-                  'season_year', 'season', 'description', 'synopsis', 'artwork_selected')
+                  'season_year', 'season', 'description', 'synopsis', 'artwork_active')
 
 
 class MediaDetailSerializer(MediaSerializer):

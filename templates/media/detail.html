@@ -14,8 +14,8 @@
     </div>
     <div class="container"><div class="row">
         <div class="col-md-4 order-md-12 pr-md-0">
-            {% if media.artwork %}
-                <img src="{% call_method media.artwork 'get_image_url' '352w' %}" srcset="{% for size in media.artwork.get_image_sizes %}{% call_method media.artwork 'get_image_url' size %} {{ size }}{% if not forloop.last %}, {% endif %}{% endfor %}"  sizes="(max-width: 319px) 100vw, (max-width: 767px) 528px, (max-width: 1199px) 292px, 352px" class="img-fluid rounded" alt="{{ media.artwork }}" />
+            {% if media.artwork_active %}
+                <img src="{% call_method media.artwork_active 'get_image_url' '352w' %}" srcset="{% for size in media.artwork.get_image_sizes %}{% call_method media.artwork_active 'get_image_url' size %} {{ size }}{% if not forloop.last %}, {% endif %}{% endfor %}"  sizes="(max-width: 319px) 100vw, (max-width: 767px) 528px, (max-width: 1199px) 292px, 352px" class="img-fluid rounded" alt="{{ media.artwork_active }}" />
             {% endif %}
         </div>
         <div class="col-md-8 order-md-1">

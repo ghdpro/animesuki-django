@@ -55,7 +55,7 @@ class Migration(migrations.Migration):
         ),
         migrations.AddField(
             model_name='media',
-            name='artwork',
+            name='artwork_active',
             field=models.ForeignKey(blank=True, default=None, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='media_artwork', to='media.MediaArtwork'),
         ),
     ]

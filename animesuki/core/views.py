@@ -35,23 +35,23 @@ class ArtworkActiveViewMixin:
         # Set active image
         if artwork_active_form.is_valid():
             try:
-                self.object.artwork = form.get_queryset().get(pk=int(artwork_active_form.cleaned_data['active']))
+                self.object.artwork_active = form.get_queryset().get(pk=int(artwork_active_form.cleaned_data['active']))
                 self.object.save()
                 if self.object._cr.pk:
                     messages.success(self.request, 'Changed active artwork for "{}" to "{}"'
-                                     .format(self.object, self.object.artwork))
+                                     .format(self.object, self.object.artwork_active))
             except ObjectDoesNotExist:
                 pass
         # Pick an image to set as active image if not yet set
         try:
             # Reload object in case active artwork was deleted
             obj = self.get_object()
-            if obj.artwork is None:
-                self.object.artwork = form.get_queryset().all()[0]
+            if obj.artwork_active is None:
+                self.object.artwork_active = form.get_queryset().all()[0]
                 self.object.save()
                 if self.object._cr.pk:
                     messages.success(self.request, 'Changed active artwork for "{}" to "{}"'
-                                     .format(self.object, self.object.artwork))
+                                     .format(self.object, self.object.artwork_active))
         except (ObjectDoesNotExist, IndexError):
             pass
         return result

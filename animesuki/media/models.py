@@ -107,8 +107,8 @@ class Media(HistoryModel):
     season = models.PositiveSmallIntegerField('season', choices=Season.choices, null=True, blank=True)
     description = models.TextField('description', blank=True)
     synopsis = models.TextField('synopsis', blank=True)
-    artwork = models.ForeignKey('MediaArtwork', related_name='media_artwork', on_delete=models.SET_NULL,
-                                null=True, blank=True, default=None)
+    artwork_active = models.ForeignKey('MediaArtwork', related_name='media_artwork', on_delete=models.SET_NULL,
+                                       null=True, blank=True, default=None)
 
     HISTORY_MODERATE_FIELDS = ('title', 'media_type', 'sub_type', 'is_adult')
 
