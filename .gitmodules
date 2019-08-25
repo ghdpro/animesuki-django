@@ -1,0 +1,3 @@
+[submodule "animesuki/history"]
+	path = animesuki/history
+	url = https://github.com/ghdpro/changerequest.git
