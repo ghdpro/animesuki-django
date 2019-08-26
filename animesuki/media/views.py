@@ -2,7 +2,7 @@
 
 from django.views.generic import DetailView, CreateView, UpdateView
 
-from animesuki.core.views import AnimeSukiPermissionMixin, ArtworkActiveViewMixin, CanonicalDetailViewMixin
+from animesuki.core.views import PermissionMessageMixin, ArtworkActiveViewMixin, CanonicalDetailViewMixin
 from animesuki.history.views import HistoryFormViewMixin, HistoryFormsetViewMixin
 
 from .models import Media
@@ -14,7 +14,7 @@ class MediaDetailView(CanonicalDetailViewMixin, DetailView):
     model = Media
 
 
-class MediaCreateView(AnimeSukiPermissionMixin, HistoryFormViewMixin, CreateView):
+class MediaCreateView(PermissionMessageMixin, HistoryFormViewMixin, CreateView):
     permission_required = 'media.add_media'
     template_name = 'media/create.html'
     form_class = MediaCreateForm
@@ -24,7 +24,7 @@ class MediaCreateView(AnimeSukiPermissionMixin, HistoryFormViewMixin, CreateView
         return self.object.get_absolute_url('media:update')
 
 
-class MediaUpdateView(AnimeSukiPermissionMixin, HistoryFormViewMixin, UpdateView):
+class MediaUpdateView(PermissionMessageMixin, HistoryFormViewMixin, UpdateView):
     permission_required = 'media.change_media'
     template_name = 'media/update.html'
     form_class = MediaUpdateForm
@@ -34,7 +34,7 @@ class MediaUpdateView(AnimeSukiPermissionMixin, HistoryFormViewMixin, UpdateView
         return self.object.get_absolute_url('media:update')
 
 
-class MediaArtworkView(AnimeSukiPermissionMixin, ArtworkActiveViewMixin, HistoryFormsetViewMixin, UpdateView):
+class MediaArtworkView(PermissionMessageMixin, ArtworkActiveViewMixin, HistoryFormsetViewMixin, UpdateView):
     permission_required = 'media.change_mediaartwork'
     permission_denied_message = 'To be able to upload artwork you need to be a Contributor'
     template_name = 'media/artwork.html'

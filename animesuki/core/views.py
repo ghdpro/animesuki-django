@@ -9,7 +9,7 @@ from django.contrib import messages
 from .forms import ArtworkActiveForm
 
 
-class AnimeSukiPermissionMixin(PermissionRequiredMixin):
+class PermissionMessageMixin(PermissionRequiredMixin):
     """"
     PermissionRequiredMixin modified to show error message to user.
 
