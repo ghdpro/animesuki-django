@@ -1,4 +1,4 @@
-Django[argon2]==2.2.4
+Django[argon2]==2.2.8
 django-debug-toolbar==2.0
 django-allauth==0.39.1
 djangorestframework==3.10.2
